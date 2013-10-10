@@ -81,11 +81,36 @@ bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
     const Vec3d& a = parent->vertices[ids[0]];
     const Vec3d& b = parent->vertices[ids[1]];
     const Vec3d& c = parent->vertices[ids[2]];
+    Vec3d planeNormal = (a-c)^(b-c);
+    planeNormal.normalize();
+    
+    std::vector<int> cordsToKeep(2,0);
+    updateCordsToKeep(3, planeNormal, cordsToKeep.begin());
 
-    // YOUR CODE HERE
+    double planeDistance = -(planeNormal*a);
+    double normalProj = (planeNormal * r.getDirection()); //dot product
+    double intersectionWt = 0;
 
-    return false;
-}
+    if(normalProj == 0)
+        return false;
+
+    intersectionWt = - (planeNormal*r.getPosition() + planeDistance)/normalProj;
+    if(intersectionWt <= RAY_EPSILON )
+        return false;
+
+    Vec3d intersectionPoint = r.at(intersectionWt);
+    const Mat3d temp(a.n[cordsToKeep[0]],b.n[cordsToKeep[0]],c.n[cordsToKeep[0]],a.n[cordsToKeep[1]],b.n[cordsToKeep[1]],c.n[cordsToKeep[1]],1,1,1);
+    Vec3d sol(intersectionPoint.n[0],intersectionPoint.n[1],1);
+    Vec3d barycentricCords = temp.inverse() * sol;
+
+    if(barycentricCords[0]==0&&barycentricCords[1]==0&&barycentricCords[2]==0)
+        return false;
+    
+    i.setT(intersectionWt);
+    i.setBary(barycentricCords);
+    i.setN(planeNormal);
+    i.setMaterial(getMaterial());
+    return barycentricCords[0]>=0&&barycentricCords[1]>=0&&barycentricCords[2]>=0;}
 
 void Trimesh::generateNormals()
 // Once you've loaded all the verts and faces, we can generate per

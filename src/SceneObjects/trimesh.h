@@ -8,8 +8,23 @@
 #include "../scene/material.h"
 #include "../scene/scene.h"
 
-class TrimeshFace;
+template <typename T, typename OI>
+void updateCordsToKeep(int normDim, T planeNormal, OI it){
+    int cordToDrop = 0;
+    double max = planeNormal.n[0];
+    
+    for(int i =1;i<normDim;++i){
+        if(max<planeNormal.n[i]){
+            max = planeNormal.n[i];
+            cordToDrop = i;}}
+    
+    for(int i = 0;i<normDim;++i){
+        if(i==cordToDrop)
+            continue;
+        *it = i;
+        ++it;}}
 
+class TrimeshFace;
 class Trimesh : public MaterialSceneObject
 {
     friend class TrimeshFace;
