@@ -85,8 +85,7 @@ bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
     Vec3d planeNormal = (a-c)^(b-c);
     planeNormal.normalize();
     
-    std::vector<int> cordsToKeep(2,0);
-    updateCordsToKeep(3, planeNormal, cordsToKeep.begin());
+    int cordToDrop = updateCordsToKeep(3, planeNormal);
 
     double planeDistance = -(planeNormal*a);
     double normalProj = (planeNormal * r.getDirection()); //dot product
@@ -100,8 +99,22 @@ bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
         return false;
 
     Vec3d intersectionPoint = r.at(intersectionWt);
-    const Mat3d temp(a.n[cordsToKeep[0]],b.n[cordsToKeep[0]],c.n[cordsToKeep[0]],a.n[cordsToKeep[1]],b.n[cordsToKeep[1]],c.n[cordsToKeep[1]],1,1,1);
+    Mat3d temp(a.n[0],b.n[0],c.n[0],a.n[1],b.n[1],c.n[1],1,1,1);
     Vec3d sol(intersectionPoint.n[0],intersectionPoint.n[1],1);
+
+    if(cordToDrop == 0){
+        Vec3d tempSol(1,intersectionPoint.n[1],intersectionPoint.n[2]);
+        Mat3d tempMat(1,1,1,a.n[1],b.n[1],c.n[1],a.n[2],b.n[2],c.n[2]);
+        sol = tempSol;
+        temp = tempMat; 
+    } else if(cordToDrop == 1){
+        Vec3d tempSol(intersectionPoint.n[0],1,intersectionPoint.n[2]);
+        Mat3d tempMat(a.n[0],b.n[0],c.n[0],1,1,1,a.n[2],b.n[2],c.n[2]);
+        sol = tempSol;
+        temp = tempMat;}
+
+
+
     Vec3d barycentricCords = temp.inverse() * sol;
 
     if(barycentricCords[0]==0&&barycentricCords[1]==0&&barycentricCords[2]==0)
