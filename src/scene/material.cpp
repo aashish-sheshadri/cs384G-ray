@@ -23,27 +23,31 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
 	// shading model, including the contributions of all the light sources.
     // You will need to call both distanceAttenuation() and shadowAttenuation()
     // somewhere in your code in order to compute shadows and light falloff.
+
 	if( debugMode )
 		std::cout << "Debugging Phong code..." << std::endl;
+
+	Vec3d intensity = ke(i) + ka(i) * scene->ambient();
 
 	// When you're iterating through the lights,
 	// you'll want to use code that looks something
 	// like this:
 	//
-	// for ( vector<Light*>::const_iterator litr = scene->beginLights(); 
-	// 		litr != scene->endLights(); 
-	// 		++litr )
-	// {
-	// 		Light* pLight = *litr;
-	// 		.
-	// 		.
-	// 		.
-	// }
-	
-
-	return kd(i);
-
-}
+	Vec3d intersectionPoint = r.at(i.t);
+	for ( vector<Light*>::const_iterator litr = scene->beginLights(); litr != scene->endLights(); ++litr ){
+			Light* pLight = *litr;
+			Vec3d lightDirection = pLight->getDirection(intersectionPoint);
+			lightDirection.normalize();
+			Vec3d surfaceNormal = i.N;
+			surfaceNormal.normalize();
+			double aLightToNormal = surfaceNormal*lightDirection;
+			if(aLightToNormal < 0)
+				continue;
+			double aRayToNormal = ((-1)*r.getDirection())*surfaceNormal;
+			double aRayToLight = std::fabs(std::cos(std::fabs(std::acos(aRayToNormal)) - std::fabs(std::acos(aLightToNormal)))); 
+			intensity += pLight->distanceAttenuation(intersectionPoint)  * (kd(i)*aLightToNormal + ks(i)*std::pow(aRayToLight,shininess(i)));}
+	// return kd(i);
+	return intensity;}
 
 TextureMap::TextureMap( string filename ) {
 

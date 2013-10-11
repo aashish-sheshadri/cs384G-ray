@@ -78,6 +78,7 @@ bool Trimesh::intersectLocal(const ray&r, isect&i) const
 // and object material in the isect object
 bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
 {
+    //Mostly done
     const Vec3d& a = parent->vertices[ids[0]];
     const Vec3d& b = parent->vertices[ids[1]];
     const Vec3d& c = parent->vertices[ids[2]];
@@ -141,4 +142,3 @@ void Trimesh::generateNormals()
     delete [] numFaces;
     vertNorms = true;
 }
-
