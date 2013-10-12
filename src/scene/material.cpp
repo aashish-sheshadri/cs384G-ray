@@ -33,7 +33,7 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
 	// you'll want to use code that looks something
 	// like this:
 	//
-	Vec3d intersectionPoint = r.at(i.t);
+	const Vec3d intersectionPoint = r.at(i.t);
 	for ( vector<Light*>::const_iterator litr = scene->beginLights(); litr != scene->endLights(); ++litr ){
 			Light* pLight = *litr;
 			Vec3d lightDirection = pLight->getDirection(intersectionPoint);
@@ -47,11 +47,10 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
             
             double aRayToLight = (-1 * r.getDirection()) * lightReflectedDirection;
 			//Actually implement shadow attentuation. 
-            intensity += pLight->distanceAttenuation(intersectionPoint)*(kd(i)*std::max(aLightToNormal,0.0) + ks(i)*std::pow(std::max(aRayToLight,0.0),shininess(i)));
-            
-
-    }
-	// return kd(i);
+            Vec3d shadowLight = pLight->shadowAttenuation(intersectionPoint+Vec3d(0,0,0)); 
+            // std::cout<<std::endl<<shadowLight[0]<<" "<<shadowLight[1]<<" "<<shadowLight[2]<<std::endl;
+            shadowLight %= (kd(i)*std::max(aLightToNormal,0.0) + ks(i)*std::pow(std::max(aRayToLight,0.0),shininess(i)));
+            intensity += pLight->distanceAttenuation(intersectionPoint)*shadowLight;}
 	return intensity;}
 
 TextureMap::TextureMap( string filename ) {

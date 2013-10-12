@@ -11,17 +11,20 @@ bool Geometry::intersect(const ray&r, isect&i) const {
 	double tmin, tmax;
 	if (hasBoundingBoxCapability() && !(bounds.intersect(r, tmin, tmax))) return false;
 	// Transform the ray into the object's local coordinate space
-	Vec3d pos = transform->globalToLocalCoords(r.getPosition());
-	Vec3d dir = transform->globalToLocalCoords(r.getPosition() + r.getDirection()) - pos;
+    Vec3d pos = transform->globalToLocalCoords(r.getPosition());
+    Vec3d dir = transform->globalToLocalCoords(r.getPosition() + r.getDirection()) - pos;
+    //dir -- direction from camera in local coordinates pointing towards object
+    //pos -- point on camera wrt local coordinate frame
 	double length = dir.length();
-	dir /= length;
+//	dir /= length;
+    dir.normalize();
 
-	ray localRay( pos, dir, r.type() );
+    ray localRay( pos, dir, r.type() ); //Ray from camera to object in local coordinate frame
 
 	if (intersectLocal(localRay, i)) {
 		// Transform the intersection point & normal returned back into global space.
-		i.N = transform->localToGlobalCoordsNormal(i.N);
-		i.t /= length;
+        i.N = transform->localToGlobalCoordsNormal(i.N);
+        i.t /= length;
 		return true;
 	} else return false;
 }
