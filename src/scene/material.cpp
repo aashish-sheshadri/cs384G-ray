@@ -12,22 +12,22 @@ extern bool debugMode;
 // the color of that point.
 Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
 {
-	// YOUR CODE HERE
+    // YOUR CODE HERE
 
-	// For now, this method just returns the diffuse color of the object.
-	// This gives a single matte color for every distinct surface in the
-	// scene, and that's it.  Simple, but enough to get you started.
-	// (It's also inconsistent with the phong model...)
+    // For now, this method just returns the diffuse color of the object.
+    // This gives a single matte color for every distinct surface in the
+    // scene, and that's it.  Simple, but enough to get you started.
+    // (It's also inconsistent with the phong model...)
 
-	// Your mission is to fill in this method with the rest of the phong
-	// shading model, including the contributions of all the light sources.
+    // Your mission is to fill in this method with the rest of the phong
+    // shading model, including the contributions of all the light sources.
     // You will need to call both distanceAttenuation() and shadowAttenuation()
     // somewhere in your code in order to compute shadows and light falloff.
 
-	if( debugMode )
-		std::cout << "Debugging Phong code..." << std::endl;
+    if( debugMode )
+        std::cout << "Debugging Phong code..." << std::endl;
 
-	Vec3d intensity = ke(i) + ka(i) * scene->ambient();
+	Vec3d intensity = ke(i) + ka(i);
 
 	// When you're iterating through the lights,
 	// you'll want to use code that looks something
@@ -37,15 +37,20 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
 	for ( vector<Light*>::const_iterator litr = scene->beginLights(); litr != scene->endLights(); ++litr ){
 			Light* pLight = *litr;
 			Vec3d lightDirection = pLight->getDirection(intersectionPoint);
-			lightDirection.normalize();
 			Vec3d surfaceNormal = i.N;
-			surfaceNormal.normalize();
-			double aLightToNormal = surfaceNormal*lightDirection;
-			if(aLightToNormal < 0)
-				continue;
-			double aRayToNormal = ((-1)*r.getDirection())*surfaceNormal;
-			double aRayToLight = std::fabs(std::cos(std::fabs(std::acos(aRayToNormal)) - std::fabs(std::acos(aLightToNormal)))); 
-			intensity += pLight->distanceAttenuation(intersectionPoint)  * (kd(i)*aLightToNormal + ks(i)*std::pow(aRayToLight,shininess(i)));}
+			double aLightToNormal = surfaceNormal * lightDirection;
+            
+            Vec3d lightReflectedDirectionCi = (lightDirection*surfaceNormal)*surfaceNormal;
+			Vec3d lightReflectedDirectionSi = lightReflectedDirectionCi - lightDirection;
+			Vec3d lightReflectedDirection = lightReflectedDirectionCi + lightReflectedDirectionSi;
+			lightReflectedDirection.normalize();
+            
+            double aRayToLight = (-1 * r.getDirection()) * lightReflectedDirection;
+			//Actually implement shadow attentuation. 
+            intensity += pLight->distanceAttenuation(intersectionPoint)*(kd(i)*std::max(aLightToNormal,0.0) + ks(i)*std::pow(std::max(aRayToLight,0.0),shininess(i)));
+            
+
+    }
 	// return kd(i);
 	return intensity;}
 

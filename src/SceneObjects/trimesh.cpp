@@ -124,6 +124,7 @@ bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
     i.setBary(barycentricCords);
     i.setN(planeNormal);
     i.setMaterial(getMaterial());
+    //i.setUVCoordinates(Vec2d(barycentricCords[0],barycentricCords[1]));
     return barycentricCords[0]>=0&&barycentricCords[1]>=0&&barycentricCords[2]>=0;}
 
 void Trimesh::generateNormals()
