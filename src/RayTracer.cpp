@@ -38,7 +38,8 @@ Vec3d RayTracer::trace( double x, double y )
     ray r( Vec3d(0,0,0), Vec3d(0,0,0), ray::VISIBILITY );
 
     scene->getCamera().rayThrough( x,y,r );
-	Vec3d ret = traceRay( r, Vec3d(1.0,1.0,1.0), 0 );
+    //*improve* read recursion depth from gui
+	Vec3d ret = traceRay( r, Vec3d(1.0,1.0,1.0), 1 );
 	ret.clamp();
 	return ret;
 }
@@ -52,12 +53,14 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
 	if( scene->intersect( r, i ) ) {
 		const Material& m = i.getMaterial();
 		//compute reflected and refracted rays
-		Vec3d reflectedDirectionCi = (-r.getDirection()*i.N)*i.N;
+		Vec3d reflectedDirectionCi = (((-1)*r.getDirection())*i.N)*i.N;
 		Vec3d reflectedDirectionSi = reflectedDirectionCi + r.getDirection();
 		ray reflectedRay(r.at(i.t),reflectedDirectionCi+reflectedDirectionSi);
-		if(depth > 0)
-			return m.shade(scene, r, i);// + m.kr(i)*traceRay(reflectedRay, thresh, depth - 1);// + m.kt(i)*traceRay(refracted, thresh, depth -1);
-		else 
+		if(depth > 0){
+			Vec3d reflectionIntensity = m.kr(i);
+			reflectionIntensity %=  traceRay(reflectedRay, thresh, depth - 1);
+			return m.shade(scene, r, i) + reflectionIntensity;// + m.kt(i)*traceRay(refracted, thresh, depth -1);
+		}else 
 			return m.shade(scene,r,i);
 	} else {
 		// No intersection.  This ray travels to infinity, so we color

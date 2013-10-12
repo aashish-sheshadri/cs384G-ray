@@ -67,7 +67,7 @@ Vec3d PointLight::shadowAttenuation(const Vec3d& P) const
     Vec3d tempVec = position - P;
     double t = tempVec.length();
     tempVec.normalize();
-    ray rayToLight(P,tempVec);
+    ray rayToLight(P,tempVec,ray::SHADOW);
     isect i;
     //*improve*
     if(scene->intersect( rayToLight, i )){

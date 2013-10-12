@@ -47,8 +47,7 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
             
             double aRayToLight = (-1 * r.getDirection()) * lightReflectedDirection;
 			//Actually implement shadow attentuation. 
-            Vec3d shadowLight = pLight->shadowAttenuation(intersectionPoint+Vec3d(0,0,0)); 
-            // std::cout<<std::endl<<shadowLight[0]<<" "<<shadowLight[1]<<" "<<shadowLight[2]<<std::endl;
+            Vec3d shadowLight = pLight->shadowAttenuation(intersectionPoint); 
             shadowLight %= (kd(i)*std::max(aLightToNormal,0.0) + ks(i)*std::pow(std::max(aRayToLight,0.0),shininess(i)));
             intensity += pLight->distanceAttenuation(intersectionPoint)*shadowLight;}
 	return intensity;}
