@@ -26,8 +26,10 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
 
     if( debugMode )
         std::cout << "Debugging Phong code..." << std::endl;
-
-	Vec3d intensity = ke(i) + ka(i);
+    Vec3d intensity(0.0f,0.0f,0.0f);
+    Vec3d emmisiveIntensity = ke(i);
+    Vec3d ambientIntensity = ka(i);
+    ambientIntensity %=  scene->ambient();
 
 	// When you're iterating through the lights,
 	// you'll want to use code that looks something
@@ -39,18 +41,22 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
 			Vec3d lightDirection = pLight->getDirection(intersectionPoint);
 			Vec3d surfaceNormal = i.N;
 			double aLightToNormal = surfaceNormal * lightDirection;
-            
             Vec3d lightReflectedDirectionCi = (lightDirection*surfaceNormal)*surfaceNormal;
 			Vec3d lightReflectedDirectionSi = lightReflectedDirectionCi - lightDirection;
 			Vec3d lightReflectedDirection = lightReflectedDirectionCi + lightReflectedDirectionSi;
 			lightReflectedDirection.normalize();
             
             double aRayToLight = (-1 * r.getDirection()) * lightReflectedDirection;
-			//Actually implement shadow attentuation. 
+            Vec3d diffuseIntensity = kd(i);
+            Vec3d specularIntensity = ks(i);
+
+            diffuseIntensity%=pLight->getColor(intersectionPoint);
+            specularIntensity%=pLight->getColor(intersectionPoint);
+
             Vec3d shadowLight = pLight->shadowAttenuation(intersectionPoint); 
-            shadowLight %= (kd(i)*std::max(aLightToNormal,0.0) + ks(i)*std::pow(std::max(aRayToLight,0.0),shininess(i)));
+            shadowLight %= (diffuseIntensity * std::max(aLightToNormal,0.0) + specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));
             intensity += pLight->distanceAttenuation(intersectionPoint)*shadowLight;}
-	return intensity;}
+    return intensity + emmisiveIntensity + ambientIntensity;}
 
 TextureMap::TextureMap( string filename ) {
 

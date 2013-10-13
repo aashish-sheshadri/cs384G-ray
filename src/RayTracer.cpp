@@ -70,8 +70,8 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
         Vec3d refractedDir(0.0f,0.0f,0.0f);
         bool shootRefractedRay = updateRefractionParams(r,i,m,reflectedDirectionSi,refractedDirectionSt,refractedDirectionCt, refractedDir);
 
-        ray reflectedRay(pointOnObject, reflectedDir);
-        ray refractedRay(pointOnObject, refractedDir);
+        ray reflectedRay(pointOnObject, reflectedDir, ray::REFLECTION);
+        ray refractedRay(pointOnObject, refractedDir, ray::REFRACTION);
 
         Vec3d reflectionIntensity = m.kr(i);
         Vec3d refractionIntensity(0.0f,0.0f,0.0f);
