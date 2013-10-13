@@ -258,6 +258,7 @@ GraphicalUI::GraphicalUI() {
 		m_menubar->menu(menuitems);
 
 		// install depth slider
+        m_nDepth = 2;
 		m_depthSlider = new Fl_Value_Slider(10, 30, 180, 20, "Depth");
 		m_depthSlider->user_data((void*)(this));	// record self to be used by static callback functions
 		m_depthSlider->type(FL_HOR_NICE_SLIDER);
