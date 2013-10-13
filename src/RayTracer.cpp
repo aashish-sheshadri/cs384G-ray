@@ -180,6 +180,10 @@ bool RayTracer::loadScene( char* fn )
 		delete scene;
 		scene = 0;
 		scene = parser.parseScene();
+        std::cout<<traceUI->getSampleSize()<<std::endl;
+        if(traceUI->acceleration()){
+            // *improve* do preprocessing for bounding boxes
+        }
 	} 
 	catch( SyntaxErrorException& pe ) {
 		traceUI->alert( pe.formattedMessage() );
@@ -236,7 +240,7 @@ void RayTracer::tracePixel( int i, int j )
 	col = trace( x,y );
 
 	unsigned char *pixel = buffer + ( i + j * buffer_width ) * 3;
-
+    // *improve* super sampling goes here
 	pixel[0] = (int)( 255.0 * col[0]);
 	pixel[1] = (int)( 255.0 * col[1]);
 	pixel[2] = (int)( 255.0 * col[2]);

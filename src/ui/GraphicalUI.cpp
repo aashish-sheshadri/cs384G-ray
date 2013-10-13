@@ -111,6 +111,11 @@ void GraphicalUI::cb_depthSlides(Fl_Widget* o, void* v)
 	((GraphicalUI*)(o->user_data()))->m_nDepth=int( ((Fl_Slider *)o)->value() ) ;
 }
 
+void GraphicalUI::cb_sampleSizeSlides(Fl_Widget* o, void* v)
+{
+    ((GraphicalUI*)(o->user_data()))->m_nSampleSize=int( ((Fl_Slider *)o)->value() ) ;
+}
+
 void GraphicalUI::cb_debuggingDisplayCheckButton(Fl_Widget* o, void* v)
 {
 	GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
@@ -119,6 +124,12 @@ void GraphicalUI::cb_debuggingDisplayCheckButton(Fl_Widget* o, void* v)
 		pUI->m_debuggingWindow->show();
 	else
 		pUI->m_debuggingWindow->hide();
+}
+
+void GraphicalUI::cb_accelerateCheckButton(Fl_Widget* o, void* v)
+{
+    GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
+    pUI->m_accelerate = (((Fl_Check_Button*)o)->value() == 1);
 }
 
 void GraphicalUI::cb_render(Fl_Widget* o, void* v)
@@ -167,8 +178,7 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
 					if (Fl::damage()) {
 						Fl::flush();
 					}
-				}
-
+                }
 				pUI->raytracer->tracePixel( x, y );
 				pUI->m_debuggingWindow->m_debuggingView->setDirty();
 			}
@@ -284,11 +294,32 @@ GraphicalUI::GraphicalUI() {
 		m_sizeSlider->align(FL_ALIGN_RIGHT);
 		m_sizeSlider->callback(cb_sizeSlides);
 
+        // install sample size slider
+        m_nSampleSize = 1;
+        m_sampleSizeSlider = new Fl_Value_Slider(10, 80, 180, 20, "Sampling Size");
+        m_sampleSizeSlider->user_data((void*)(this));	// record self to be used by static callback functions
+        m_sampleSizeSlider->type(FL_HOR_NICE_SLIDER);
+        m_sampleSizeSlider->labelfont(FL_COURIER);
+        m_sampleSizeSlider->labelsize(12);
+        m_sampleSizeSlider->minimum(1);
+        m_sampleSizeSlider->maximum(10);
+        m_sampleSizeSlider->step(1);
+        m_sampleSizeSlider->value(m_nSampleSize);
+        m_sampleSizeSlider->align(FL_ALIGN_RIGHT);
+        m_sampleSizeSlider->callback(cb_sampleSizeSlides);
+
+        // set up acceleration checkbox
+        m_accelerate = false;
+        m_accelerateCheckButton = new Fl_Check_Button(0, 250, 180, 20, "Accelerate");
+        m_accelerateCheckButton->user_data((void*)(this));
+        m_accelerateCheckButton->callback(cb_accelerateCheckButton);
+        m_accelerateCheckButton->value(m_accelerate);
+
 		// set up debugging display checkbox
         m_debuggingDisplayCheckButton = new Fl_Check_Button(0, 280, 180, 20, "Debugging display");
 		m_debuggingDisplayCheckButton->user_data((void*)(this));
-		m_debuggingDisplayCheckButton->callback(cb_debuggingDisplayCheckButton);
-		m_debuggingDisplayCheckButton->value(m_displayDebuggingInfo);
+        m_debuggingDisplayCheckButton->callback(cb_debuggingDisplayCheckButton);
+        m_debuggingDisplayCheckButton->value(m_displayDebuggingInfo);
 
 		// set up "render" button
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");

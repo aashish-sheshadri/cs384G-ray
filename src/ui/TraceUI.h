@@ -39,18 +39,23 @@ public:
 
 	// accessors:
 	int		getSize() const { return m_nSize; }
-	int		getDepth() const { return m_nDepth; }
+    int		getDepth() const { return m_nDepth; }
+    bool    acceleration() const { return m_accelerate; }
+    int     getSampleSize() const { return m_nSampleSize; }
+
 
 protected:
 	RayTracer*	raytracer;
 
 	int			m_nSize;				// Size of the traced image
-	int			m_nDepth;				// Max depth of recursion
+    int			m_nDepth;				// Max depth of recursion
+    bool        m_accelerate;           // acceleration preprocess is on?
+    int         m_nSampleSize;          // super sample size
 
 	// Determines whether or not to show debugging information
 	// for individual rays.  Disabled by default for efficiency
-	// reasons.
-	bool		m_displayDebuggingInfo;
+    // reasons.
+    bool		m_displayDebuggingInfo;
 
 };
 

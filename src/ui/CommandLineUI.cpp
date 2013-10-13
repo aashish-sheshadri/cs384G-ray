@@ -32,8 +32,9 @@ CommandLineUI::CommandLineUI( int argc, char** argv )
 	int i;
 
 	progName=argv[0];
-
-	while( (i = getopt( argc, argv, "tr:w:h:" )) != EOF )
+    m_accelerate = false;
+    m_nSampleSize = 1;
+    while( (i = getopt( argc, argv, "tr:w:h:s:a" )) != EOF )
 	{
 		switch( i )
 		{
@@ -44,6 +45,12 @@ CommandLineUI::CommandLineUI( int argc, char** argv )
 			case 'w':
 				m_nSize = atoi( optarg );
 				break;
+            case 'a':
+                m_accelerate = true;
+                break;
+            case 's':
+                m_nSampleSize = atoi( optarg );
+                break;
 			default:
 			// Oops; unknown argument
 			std::cerr << "Invalid argument: '" << i << "'." << std::endl;

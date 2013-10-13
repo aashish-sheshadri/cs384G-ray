@@ -36,11 +36,13 @@ public:
 
 	Fl_Slider*			m_sizeSlider;
 	Fl_Slider*			m_depthSlider;
+    Fl_Slider*			m_sampleSizeSlider;
 
 	Fl_Check_Button*	m_debuggingDisplayCheckButton;
 
 	Fl_Button*			m_renderButton;
 	Fl_Button*			m_stopButton;
+    Fl_Check_Button*    m_accelerateCheckButton;
 
 	TraceGLWindow*		m_traceGlWindow;
 
@@ -48,7 +50,7 @@ public:
 	// member functions
 	void		setRayTracer(RayTracer *tracer);
 
-	static void stopTracing();
+    static void stopTracing();
 private:
 
 // static class members
@@ -64,11 +66,13 @@ private:
 	static void cb_exit2(Fl_Widget* o, void* v);
 
 	static void cb_sizeSlides(Fl_Widget* o, void* v);
+    static void cb_sampleSizeSlides(Fl_Widget* o, void* v);
 	static void cb_depthSlides(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);
 	static void cb_stop(Fl_Widget* o, void* v);
 	static void cb_debuggingDisplayCheckButton(Fl_Widget* o, void* v);
+    static void cb_accelerateCheckButton(Fl_Widget* o, void* v);
 
 	static bool doneTrace;		// Flag that gets set when the trace is done
 	static bool stopTrace;		// Flag that gets set when the trace should be stopped
