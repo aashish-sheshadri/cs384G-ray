@@ -34,11 +34,13 @@ public:
 	const Scene& getScene() { return *scene; }
 
 private:
+    Vec3d getReflectionIntensity(const Material&, const isect&, const ray&, Vec3d&, const Vec3d&, int, const Vec3d&);
+    Vec3d getRefractionIntensity();
 	unsigned char *buffer;
 	int buffer_width, buffer_height;
 	int bufferSize;
 	Scene* scene;
-
+    bool checkTotalInternal(const ray& r,const isect& i);
     bool m_bBufferReady;
 
 

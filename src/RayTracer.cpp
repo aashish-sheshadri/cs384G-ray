@@ -39,7 +39,7 @@ Vec3d RayTracer::trace( double x, double y )
 
     scene->getCamera().rayThrough( x,y,r );
     //*improve* read recursion depth from gui
-	Vec3d ret = traceRay( r, Vec3d(1.0,1.0,1.0), traceUI->getDepth() );
+    Vec3d ret = traceRay( r, Vec3d(1.0,1.0,1.0), traceUI->getDepth() );
 	ret.clamp();
 	return ret;
 }
@@ -61,38 +61,40 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
         //*improve* use thresh (gain from shooting additional rays)
 
         //do reflections
+        Vec3d reflectedDirectionSi;
+        Vec3d reflectionIntensity = getReflectionIntensity(m,i,r,reflectedDirectionSi,pointOnObject,depth,thresh);
 
-		Vec3d reflectedDirectionCi = (((-1)*r.getDirection())*i.N)*i.N;
-		Vec3d reflectedDirectionSi = reflectedDirectionCi + r.getDirection();
-		Vec3d reflectedDir = reflectedDirectionCi+reflectedDirectionSi;
-		reflectedDir.normalize();
-		ray reflectedRay(pointOnObject,reflectedDir);
-        Vec3d reflectionIntensity = m.kr(i);
-        reflectionIntensity %=  traceRay(reflectedRay, thresh, depth - 1);
-        intensity += reflectionIntensity;
+//        if(thresh.length()<reflectionIntensity.length())
+            intensity += reflectionIntensity;
 
         //do refractions
         //There was somthing about ratio index here
-        if(m.kt(i).length2()>0){
+            if(m.kt(i)[0]>0.0f&&m.kt(i)[1]>0.0f&&m.kt(i)[2]>0.0f && !checkTotalInternal(r,i)){
             Vec3d refractedDirectionSt;
             Vec3d refractedDirectionCt;
             Vec3d refractedDir;
-            if(i.N * r.getDirection() < 0){
+            if(i.N * r.getDirection() < 0.0f){
                 double ratioIndex = 1.0f/(double)ratioIndex;
                 refractedDirectionSt = ratioIndex * reflectedDirectionSi;
-                refractedDirectionCt = (-1 * i.N) * std::sqrt((1 - refractedDirectionSt.length2()));
-                refractedDir = refractedDirectionSt + refractedDirectionCt;
-                refractedDir.normalize();
-            } else if(i.N * r.getDirection() > 0) {
+                double temp = refractedDirectionSt*refractedDirectionSt;
+                if(temp>1)
+                    temp = 0;
+                refractedDirectionCt = (-1.0f * i.N) * std::sqrt((1.0f - temp));
+            } else if(i.N * r.getDirection() > 0.0f) {
                 double ratioIndex = i.getMaterial().index(i);
                 refractedDirectionSt = ratioIndex * reflectedDirectionSi;
-                refractedDirectionCt = i.N * std::sqrt((1 - refractedDirectionSt.length2()));
-                refractedDir = refractedDirectionSt + refractedDirectionCt;
-                refractedDir.normalize();}
+                double temp = refractedDirectionSt*refractedDirectionSt;
+                if(temp>1)
+                    temp = 0;
+                refractedDirectionCt = i.N * std::sqrt((1.0f - temp));
+            }
+            refractedDir = refractedDirectionSt + refractedDirectionCt;
+            refractedDir.normalize();//jump again
             ray refractedRay(pointOnObject, refractedDir);
             Vec3d refractionIntensity = m.kt(i);
-            refractionIntensity %= traceRay(refractedRay, thresh, depth - 1);
-            intensity += refractionIntensity;}
+            refractionIntensity %= traceRay(refractedRay, thresh, depth - 1); //jump
+//            if(thresh.length()<refractionIntensity.length())
+                intensity += refractionIntensity;}
         return intensity;
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
@@ -102,6 +104,24 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
         return Vec3d( 0.0, 0.0, 0.0 );
 	}
 }
+
+Vec3d RayTracer::getReflectionIntensity(const Material& m, const isect& i, const ray& r, Vec3d& reflectedDirectionSi, const Vec3d& pointOnObject, int depth, const Vec3d& thresh){
+    Vec3d reflectedDirectionCi = (((-1)*r.getDirection())*i.N)*i.N;
+    reflectedDirectionSi = reflectedDirectionCi + r.getDirection();
+    Vec3d reflectedDir = reflectedDirectionCi+reflectedDirectionSi;
+    reflectedDir.normalize();
+    ray reflectedRay(pointOnObject,reflectedDir);
+    Vec3d reflectionIntensity = m.kr(i);
+    reflectionIntensity %=  traceRay(reflectedRay, thresh, depth - 1);
+    return reflectionIntensity;}
+
+bool RayTracer::checkTotalInternal(const ray &r, const isect &i){
+    if(i.N * r.getDirection() > 0.0f){
+        double incidentAngle = i.N * r.getDirection();
+        double ratioIndex = i.getMaterial().index(i);
+        if((1.0f - (ratioIndex*ratioIndex*(1.0f - incidentAngle * incidentAngle)))<0.0f)
+            return true;}
+    return false;}
 
 RayTracer::RayTracer()
 	: scene( 0 ), buffer( 0 ), buffer_width( 256 ), buffer_height( 256 ), m_bBufferReady( false )
