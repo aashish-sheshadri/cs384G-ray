@@ -5,9 +5,22 @@
 
 #include "scene/ray.h"
 #include <vector>
+#include <algorithm>
+
+
+template<typename T>
+struct Jitter{
+    T jitterMax;
+    Jitter(T jitterMax){
+        this->jitterMax = jitterMax;}
+    T operator ()(T baseVal){
+        float randVal = (float)rand()/RAND_MAX;
+        int sign = randVal>0.5?1:-1;
+        randVal = (float)rand()/RAND_MAX;
+        randVal*=jitterMax;
+        return (randVal*sign + baseVal);}};
 
 class Scene;
-
 class RayTracer
 {
 public:
