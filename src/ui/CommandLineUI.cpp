@@ -34,19 +34,26 @@ CommandLineUI::CommandLineUI( int argc, char** argv )
 	progName=argv[0];
     m_accelerate = false;
     m_nSampleSize = 1;
-    while( (i = getopt( argc, argv, "tr:w:h:s:a" )) != EOF )
+    while( (i = getopt( argc, argv, "tr:w:h:s:auj" )) != EOF )
 	{
 		switch( i )
 		{
 			case 'r':
 				m_nDepth = atoi( optarg );
 				break;
-
 			case 'w':
 				m_nSize = atoi( optarg );
 				break;
             case 'a':
                 m_accelerate = true;
+                break;
+            case 'u':
+                m_bUniform = true;
+                m_bJitter = false;
+                break;
+            case 'j':
+                m_bUniform = false;
+                m_bJitter = true;
                 break;
             case 's':
                 m_nSampleSize = atoi( optarg );

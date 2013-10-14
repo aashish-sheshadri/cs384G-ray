@@ -236,7 +236,6 @@ void RayTracer::tracePixel( int i, int j )
     int numSamples = traceUI->getSampleSize();
     numSamples = (numSamples%2)==0?numSamples+1:numSamples;
     if(numSamples>1){
-        bool enableJitter = true;
         double xMin = i - 0.5f;
         double yMin = j - 0.5f;
         double delta = 0.5f/(double)(numSamples/2);
@@ -251,7 +250,7 @@ void RayTracer::tracePixel( int i, int j )
             yVec.push_back(yMin+temp*delta);
             --temp;}
 
-        if(enableJitter){
+        if(traceUI->jitter()){
             Jitter<double> jitter(delta);
             std::transform(xVec.begin(), xVec.end(), xVec.begin(), jitter);
             std::transform(yVec.begin(), yVec.end(), yVec.begin(), jitter);}

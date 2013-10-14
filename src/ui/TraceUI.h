@@ -41,6 +41,8 @@ public:
 	int		getSize() const { return m_nSize; }
     int		getDepth() const { return m_nDepth; }
     bool    acceleration() const { return m_accelerate; }
+    bool    jitter() const { return m_bJitter; }
+    bool    uniform() const { return m_bUniform; }
     int     getSampleSize() const { return m_nSampleSize; }
 
 
@@ -51,6 +53,8 @@ protected:
     int			m_nDepth;				// Max depth of recursion
     bool        m_accelerate;           // acceleration preprocess is on?
     int         m_nSampleSize;          // super sample size
+    bool        m_bJitter;
+    bool        m_bUniform;
 
 	// Determines whether or not to show debugging information
 	// for individual rays.  Disabled by default for efficiency

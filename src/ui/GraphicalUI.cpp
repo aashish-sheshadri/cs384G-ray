@@ -111,6 +111,18 @@ void GraphicalUI::cb_depthSlides(Fl_Widget* o, void* v)
 	((GraphicalUI*)(o->user_data()))->m_nDepth=int( ((Fl_Slider *)o)->value() ) ;
 }
 
+void GraphicalUI::cb_jitterSamplingRadioButton(Fl_Widget* o, void* v)
+{
+    ((GraphicalUI*)(o->user_data()))->m_bJitter= true ;
+    ((GraphicalUI*)(o->user_data()))->m_bUniform= false ;
+}
+
+void GraphicalUI::cb_uniformSamplingRadioButton(Fl_Widget* o, void* v)
+{
+    ((GraphicalUI*)(o->user_data()))->m_bJitter= false ;
+    ((GraphicalUI*)(o->user_data()))->m_bUniform= true ;
+}
+
 void GraphicalUI::cb_sampleSizeSlides(Fl_Widget* o, void* v)
 {
     ((GraphicalUI*)(o->user_data()))->m_nSampleSize=int( ((Fl_Slider *)o)->value() ) ;
@@ -307,6 +319,22 @@ GraphicalUI::GraphicalUI() {
         m_sampleSizeSlider->value(m_nSampleSize);
         m_sampleSizeSlider->align(FL_ALIGN_RIGHT);
         m_sampleSizeSlider->callback(cb_sampleSizeSlides);
+
+        // turn uniform sampling
+        m_bUniform = true;
+        m_uniformSamplingButton = new Fl_Round_Button(0, 110, 180, 20, "Uniform Sampling");
+        m_uniformSamplingButton->user_data((void*)(this));
+        m_uniformSamplingButton->callback(cb_jitterSamplingRadioButton);
+        m_uniformSamplingButton->type(FL_RADIO_BUTTON);
+        m_uniformSamplingButton->setonly();
+
+        // turn jitter sampling
+        m_bJitter = false;
+        m_jitterSamplingButton = new Fl_Round_Button(0, 140, 180, 20, "Jitter Sampling");
+        m_jitterSamplingButton->user_data((void*)(this));
+        m_jitterSamplingButton->callback(cb_uniformSamplingRadioButton);
+        m_jitterSamplingButton->type(FL_RADIO_BUTTON);
+
 
         // set up acceleration checkbox
         m_accelerate = false;

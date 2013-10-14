@@ -13,6 +13,7 @@
 #include <FL/Fl_Value_Slider.H>
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Round_Button.H>
 
 #include <FL/Fl_File_Chooser.H>		// FLTK file chooser
 
@@ -42,6 +43,8 @@ public:
 
 	Fl_Button*			m_renderButton;
 	Fl_Button*			m_stopButton;
+    Fl_Round_Button*	m_jitterSamplingButton;
+    Fl_Round_Button*	m_uniformSamplingButton;
     Fl_Check_Button*    m_accelerateCheckButton;
 
 	TraceGLWindow*		m_traceGlWindow;
@@ -73,6 +76,8 @@ private:
 	static void cb_stop(Fl_Widget* o, void* v);
 	static void cb_debuggingDisplayCheckButton(Fl_Widget* o, void* v);
     static void cb_accelerateCheckButton(Fl_Widget* o, void* v);
+    static void cb_jitterSamplingRadioButton(Fl_Widget* o, void* v);
+    static void cb_uniformSamplingRadioButton(Fl_Widget* o, void* v);
 
 	static bool doneTrace;		// Flag that gets set when the trace is done
 	static bool stopTrace;		// Flag that gets set when the trace should be stopped
