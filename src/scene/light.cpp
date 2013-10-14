@@ -17,8 +17,15 @@ Vec3d DirectionalLight::shadowAttenuation( const Vec3d& P ) const
     if(scene->intersect( rayToLight, i )){
         Vec3d returnColor(0.0f,0.0f,0.0f);
         Vec3d kTransmit = i.getMaterial().kt(i);
+        double currentPoint = i.t;
+        double distBetween = 1.0f;
+        isect internalI;
+        Vec3d pointOnObject = rayToLight.at(currentPoint);
+        if(scene->intersect(ray(pointOnObject,getDirection(pointOnObject),ray::SHADOW),internalI))
+            distBetween = internalI.t;
+        double attentuation = std::min(1.0,(double)1.0/(double)(0.2 + 0.2f*distBetween + 0.6f*distBetween*distBetween));
         if(kTransmit[0]>0||kTransmit[1]>0||kTransmit[2]>0){
-            returnColor = 0.3f*getColor(P) + 0.7f*i.getMaterial().kd(i);
+            returnColor = attentuation * getColor(P);
             returnColor%=kTransmit;}
         return returnColor;}
     return Vec3d(1,1,1);}
@@ -66,8 +73,15 @@ Vec3d PointLight::shadowAttenuation(const Vec3d& P) const
         if(t>i.t){
             Vec3d returnColor(0.0f,0.0f,0.0f);
             Vec3d kTransmit = i.getMaterial().kt(i);
+            double currentPoint = i.t;
+            double distBetween = 1.0f;
+            isect internalI;
+            Vec3d pointOnObject = rayToLight.at(currentPoint);
+            if(scene->intersect(ray(pointOnObject,getDirection(pointOnObject),ray::SHADOW),internalI))
+                distBetween = internalI.t;
+            double attentuation = std::min(1.0,(double)1.0/(double)(constantTerm + linearTerm*distBetween + quadraticTerm*distBetween*distBetween));
             if(kTransmit[0]>0||kTransmit[1]>0||kTransmit[2]>0){
-                returnColor = 0.3f*getColor(P) + 0.7f*i.getMaterial().kd(i);
+                returnColor = attentuation * getColor(P);
                 returnColor%=kTransmit;}
             return returnColor;}}
     return Vec3d(1,1,1);}
