@@ -228,22 +228,42 @@ void RayTracer::traceSetup( int w, int h )
 
 void RayTracer::tracePixel( int i, int j )
 {
-	Vec3d col;
+    Vec3d col(0.0f,0.0f,0.0f);
 
 	if( ! sceneLoaded() )
 		return;
 
 	double x = double(i)/double(buffer_width);
 	double y = double(j)/double(buffer_height);
+    int numSamples = traceUI->getSampleSize();
+    numSamples = (numSamples%2)==0?numSamples+1:numSamples;
+    if(numSamples>1){
+        double xMin = i - 0.5f;
+        double yMin = j - 0.5f;
+        double delta = 0.5f/(double)(numSamples/2);
 
+        std::vector<double> xVec;
+        std::vector<double> yVec;
+        xVec.reserve(numSamples);
+        yVec.reserve(numSamples);
+        int temp = numSamples - 1;
+        while(temp>=0){
+            xVec.push_back(xMin+temp*delta);
+            yVec.push_back(yMin+temp*delta);
+            --temp;}
 
-	col = trace( x,y );
+        for (std::vector<double>::iterator itX = xVec.begin();itX!=xVec.end();++itX){
+            for(std::vector<double>::iterator itY = yVec.begin();itY!=yVec.end();++itY){
+                col+= trace(*itX/double(buffer_width),*itY/double(buffer_height));}}
+
+        col/=(numSamples*numSamples);
+    } else {
+        col = trace(x,y);}
 
 	unsigned char *pixel = buffer + ( i + j * buffer_width ) * 3;
     // *improve* super sampling goes here
 	pixel[0] = (int)( 255.0 * col[0]);
 	pixel[1] = (int)( 255.0 * col[1]);
-	pixel[2] = (int)( 255.0 * col[2]);
-}
+	pixel[2] = (int)( 255.0 * col[2]);}
 
 

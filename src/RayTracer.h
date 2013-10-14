@@ -4,6 +4,7 @@
 // The main ray tracer.
 
 #include "scene/ray.h"
+#include <vector>
 
 class Scene;
 
