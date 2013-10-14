@@ -180,7 +180,6 @@ bool RayTracer::loadScene( char* fn )
 		delete scene;
 		scene = 0;
 		scene = parser.parseScene();
-        std::cout<<traceUI->getSampleSize()<<std::endl;
         if(traceUI->acceleration()){
             // *improve* do preprocessing for bounding boxes
         }
