@@ -15,9 +15,12 @@ Vec3d DirectionalLight::shadowAttenuation( const Vec3d& P ) const
     isect i;
     //*improve* better translucent shadows
     if(scene->intersect( rayToLight, i )){
-        Vec3d returnColor = 0.5f*(getColor(P) + i.getMaterial().kd(i));
-        returnColor%=i.getMaterial().kt(i);
-            return returnColor;}
+        Vec3d returnColor(0.0f,0.0f,0.0f);
+        Vec3d kTransmit = i.getMaterial().kt(i);
+        if(kTransmit[0]>0||kTransmit[1]>0||kTransmit[2]>0){
+            returnColor = 0.3f*getColor(P) + 0.7f*i.getMaterial().kd(i);
+            returnColor%=kTransmit;}
+        return returnColor;}
     return Vec3d(1,1,1);}
 
 Vec3d DirectionalLight::getColor( const Vec3d& P ) const
@@ -61,7 +64,10 @@ Vec3d PointLight::shadowAttenuation(const Vec3d& P) const
     //*improve* better translucent shadows
     if(scene->intersect( rayToLight, i )){
         if(t>i.t){
-            Vec3d returnColor = 0.5f*(getColor(P) + i.getMaterial().kd(i));
-            returnColor%=i.getMaterial().kt(i);
-                return returnColor;}}
+            Vec3d returnColor(0.0f,0.0f,0.0f);
+            Vec3d kTransmit = i.getMaterial().kt(i);
+            if(kTransmit[0]>0||kTransmit[1]>0||kTransmit[2]>0){
+                returnColor = 0.3f*getColor(P) + 0.7f*i.getMaterial().kd(i);
+                returnColor%=kTransmit;}
+            return returnColor;}}
     return Vec3d(1,1,1);}
