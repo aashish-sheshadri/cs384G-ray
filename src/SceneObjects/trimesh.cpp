@@ -119,13 +119,26 @@ bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
 
     if(barycentricCords[0]==0&&barycentricCords[1]==0&&barycentricCords[2]==0)
         return false;
+    if(!(barycentricCords[0]>=0&&barycentricCords[1]>=0&&barycentricCords[2]>=0))
+        return false;
     
+    // phong interpolation
+    if(parent->vertNorms){
+        Vec3d weightFromA(barycentricCords[0],barycentricCords[0],barycentricCords[0]);
+        weightFromA %= parent->normals[0];
+        Vec3d weightFromB(barycentricCords[1],barycentricCords[1],barycentricCords[1]);
+        weightFromB %= parent->normals[1];
+        Vec3d weightFromC(barycentricCords[2],barycentricCords[2],barycentricCords[2]);
+        weightFromC %= parent->normals[2];
+        i.setN( weightFromA + weightFromB + weightFromC );
+    } else
+        i.setN(planeNormal);
+
     i.setT(intersectionWt);
     i.setBary(barycentricCords);
-    i.setN(planeNormal);
     i.setMaterial(getMaterial());
     //i.setUVCoordinates(Vec2d(barycentricCords[0],barycentricCords[1]));
-    return barycentricCords[0]>=0&&barycentricCords[1]>=0&&barycentricCords[2]>=0;}
+    return true;}
 
 void Trimesh::generateNormals()
 // Once you've loaded all the verts and faces, we can generate per
