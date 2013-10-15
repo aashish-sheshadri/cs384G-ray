@@ -38,7 +38,6 @@ Vec3d RayTracer::trace( double x, double y )
     ray r( Vec3d(0,0,0), Vec3d(0,0,0), ray::VISIBILITY );
 
     scene->getCamera().rayThrough( x,y,r );
-    //*improve* read recursion depth from gui
     Vec3d ret = traceRay( r, Vec3d(1.0,1.0,1.0), traceUI->getDepth() );
 	ret.clamp();
 	return ret;

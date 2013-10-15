@@ -16,7 +16,7 @@ public:
 
 	Vec3d getMin() const { return bmin; }
 	Vec3d getMax() const { return bmax; }
-	bool isEmpty() { return bEmpty; }
+    bool isEmpty() const { return bEmpty; }
 
 	void setMin(Vec3d bMin) {
 		bmin = bMin;
@@ -124,4 +124,12 @@ public:
 		dirty = true;
 		bEmpty = false;
 	}
-};
+
+    void getPlaneNormsDists(int dim, Vec3d& normal, double& d1, double& d2){
+        switch(dim){
+        case 0: normal = (bmax[2]-bmin[2])*(bmax[1]-bmin[1]); break;
+        case 1: normal = (bmax[2]-bmin[2])*(bmax[0]-bmin[0]); break;
+        case 2: normal = (bmax[1]-bmin[1])*(bmax[0]-bmin[0]); break;
+        default: normal = Vec3d(0.0f,0.0f,0.0f);}
+        d1 = (normal * bmin);
+        d2 =  (-1) * (normal * bmax);}};
