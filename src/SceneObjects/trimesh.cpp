@@ -121,19 +121,17 @@ bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
         return false;
     if(!(barycentricCords[0]>=0&&barycentricCords[1]>=0&&barycentricCords[2]>=0))
         return false;
-    
+
     // phong interpolation
     if(parent->vertNorms){
-        Vec3d weightFromA(barycentricCords[0],barycentricCords[0],barycentricCords[0]);
-        weightFromA %= parent->normals[0];
-        Vec3d weightFromB(barycentricCords[1],barycentricCords[1],barycentricCords[1]);
-        weightFromB %= parent->normals[1];
-        Vec3d weightFromC(barycentricCords[2],barycentricCords[2],barycentricCords[2]);
-        weightFromC %= parent->normals[2];
-        i.setN( weightFromA + weightFromB + weightFromC );
-    } else
-        i.setN(planeNormal);
+        Vec3d weightFromA(parent->normals[0][0]*barycentricCords[0] , parent->normals[0][1]*barycentricCords[0] , parent->normals[0][2]*barycentricCords[0]);
+        Vec3d weightFromB(parent->normals[1][0]*barycentricCords[1] , parent->normals[1][1]*barycentricCords[1] , parent->normals[1][2]*barycentricCords[1]);
+        Vec3d weightFromC(parent->normals[2][0]*barycentricCords[2] , parent->normals[2][1]*barycentricCords[2] , parent->normals[2][2]*barycentricCords[2]);
+        planeNormal = weightFromA + weightFromB + weightFromC;
+        planeNormal.normalize();
+    }
 
+    i.setN(planeNormal);
     i.setT(intersectionWt);
     i.setBary(barycentricCords);
     i.setMaterial(getMaterial());
