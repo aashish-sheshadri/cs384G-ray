@@ -46,16 +46,20 @@ public:
         _objects.push_back(obj);}
 
     double getArea(object_data_type obj){
-
+        obj.area();
     }
 
     double getBoxArea(){
+        return _box.area();
 
     }
 
     double getObjectsArea(){
-
-    }
+        double toReturn = 0.0f;
+        for(iterator it = _objects.begin(); it!=_objects.end(); ++it){
+            assert(!((*it).isEmpty()));
+            toReturn += (*it).area();}
+        return toReturn;}
 
     iterator getBeginIterator(){
         return _objects.begin();}
