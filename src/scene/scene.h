@@ -222,9 +222,7 @@ public:
 	typedef std::vector<Light*>::const_iterator cliter;
 	typedef std::vector<Geometry*>::iterator giter;
 	typedef std::vector<Geometry*>::const_iterator cgiter;
-
 	TransformRoot transformRoot;
-
 	Scene() : transformRoot(), objects(), lights() {}
 	virtual ~Scene();
 

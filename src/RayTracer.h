@@ -6,6 +6,7 @@
 #include "scene/ray.h"
 #include <vector>
 #include <algorithm>
+#include "kdtree.h"
 
 
 template<typename T>
@@ -56,8 +57,6 @@ private:
 	Scene* scene;
     bool checkTotalInternal(const ray& r,const isect& i);
     bool m_bBufferReady;
-
-
-};
+    KdTree<BoundingBox> kdTree;};
 
 #endif // __RAYTRACER_H__
