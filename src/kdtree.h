@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <utility>
 #include <cassert>
-#include <unordered_set>
+#include <map>
 
 template<typename T>
 struct ComparePair{
@@ -45,7 +45,7 @@ public:
     void addObject(const object_data_type& obj){
         _objects.push_back(obj);}
 
-    double getObjectArea(){
+    double getArea(object_data_type obj){
 
     }
 
@@ -53,8 +53,13 @@ public:
 
     }
 
+    double getObjectsArea(){
+
+    }
+
     iterator getBeginIterator(){
         return _objects.begin();}
+
 
     iterator getEndIterator(){
         return _objects.end();}
@@ -94,10 +99,33 @@ private:
             (*it).getPlaneNormsDists(dim, normal, d1, d2);
             objDistancePairs.push_back(std::make_pair(d1,it));
             objDistancePairs.push_back(std::make_pair(d2,it));}
+
         typedef std::pair<double, typename Node<object_data_type>::iterator > internalType;
         std::cout<<std::endl;
         std::sort(objDistancePairs.begin(), objDistancePairs.end(), ComparePair<internalType>());
-        std::unordered_set<typename Node<object_data_type>::iterator> transientSet;
+//        std::unordered_map<typename Node<object_data_type>::iterator, bool> transientMap;
+        std::map<typename Node<object_data_type>::iterator, bool> transientMap;
+        double negativeArea = 0.0f;
+        double positiveArea = node->getObjectsArea();
+        typename std::vector<internalType>::iterator prevIt = objDistancePairs.end();
+        for(typename std::vector<internalType>::iterator it=objDistancePairs.begin(); it!= objDistancePairs.end(); ++it){
+//            typename std::unordered_map<typename Node<object_data_type>::iterator, bool>::iterator deleteLoc = transientMap.find((*it).second);
+            typename std::map<typename Node<object_data_type>::iterator, bool>::iterator deleteLoc = transientMap.find((*it).second);
+            if(!(deleteLoc == transientMap.end())){
+                if((*deleteLoc).second == true){
+                    (*deleteLoc).second == false;
+                    double tempArea = node->getArea(*((*deleteLoc).first));
+                    if((*prevIt).second == (*deleteLoc).first){
+                        negativeArea+=tempArea;
+                        positiveArea-=tempArea;
+                    }else{
+                        positiveArea-=tempArea;}}
+            }else{
+                if(!transientMap.empty()){
+                    double tempArea = node->getArea(*((*(prevIt)).second));
+                    negativeArea+=tempArea;}
+                assert((transientMap.insert(std::make_pair((*it).second,true))).second);}
+            prevIt = it;}
         return 0.0f;}
 
 public:
