@@ -56,24 +56,29 @@ bool Trimesh::intersectLocal(const ray&r, isect&i) const
     double tmin = 0.0;
 	double tmax = 0.0;
 	typedef Faces::const_iterator iter;
-	bool have_one = false;
-	for( iter j = faces.begin(); j != faces.end(); ++j ) {
-		isect cur;
-		if( (*j)->intersectLocal( r, cur ) )
-		{
-			if( !have_one || (cur.t < i.t) )
-			{
-				i = cur;
-				have_one = true;
-			}
-		}
-	}
+//	bool have_one = false;
+    bool have_one = const_cast<Trimesh*>(this)->kdTree.rayTreeTraversal(i,r);
+//    for( iter j = faces.begin(); j != faces.end(); ++j ) {
+//		isect cur;
+//		if( (*j)->intersectLocal( r, cur ) )
+//		{
+//			if( !have_one || (cur.t < i.t) )
+//			{
+//				i = cur;
+//				have_one = true;
+//			}
+//		}
+//	}
 	if( !have_one ) i.setT(1000.0);
 	return have_one;
 }
 
 void Trimesh::constructKDTree(){
     this->kdTree.buildTree(this->faces.begin(),this->faces.end());}
+
+
+bool TrimeshFace::intersect(const ray &r, isect &i) const {
+    return intersectLocal(r,i);}
 
 // Intersect ray r with the triangle abc.  If it hits returns true,
 // and puts the t parameter, barycentric coordinates, normal, object id,

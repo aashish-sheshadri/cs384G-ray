@@ -123,16 +123,11 @@ private:
             objDistancePairs.push_back(std::make_pair(d1,it));
             objDistancePairs.push_back(std::make_pair(d2,it));}
 
-        std::cout<<"Printing unsorted planes in dim: "<<dim<<std::endl;
-        for(typename std::vector<internalType>::iterator it=objDistancePairs.begin(); it!= objDistancePairs.end(); ++it){
-            std::cout<<(*it).first<<" ";}
-        std::cout<<std::endl;
+
 
         std::sort(objDistancePairs.begin(), objDistancePairs.end(), ComparePair<internalType>());
-        std::cout<<"Printing sorted planes in dim: "<<dim<<std::endl;
-        for(typename std::vector<internalType>::iterator it=objDistancePairs.begin(); it!= objDistancePairs.end(); ++it){
-            std::cout<<(*it).first<<" ";}
-        std::cout<<std::endl;
+
+
         std::set<typename Node<object_data_type>::iterator> transientSet;
         int negCounter = 0, posCounter = node->getNumObjects();
         double negativeArea = 0.0f;
@@ -171,7 +166,6 @@ private:
     node_pointer splitNode(node_pointer node, int depth, int minObjs){
         unsigned int currNumObjs = node->getNumObjects();
         if(currNumObjs<=minObjs || depth < 0){
-            std::cout<<"Reached leaf termination"<<std::endl;
             return node;}
         node_pointer positiveNode = new Node<object_data_type>();
         node_pointer negativeNode = new Node<object_data_type>();
@@ -199,9 +193,7 @@ private:
             dim = 2;
             hMin = zH;
             dMin = zD;}
-        std::cout<<"Minimum dimension is: "<<dim<<std::endl;
-        std::cout<<"Minimum plane distance is: "<<dMin<<std::endl;
-        std::cout<<"Minimum h is: "<<hMin<<std::endl;
+
         typename Node<object_data_type>::iterator it = node->getBeginIterator();
         while(it!=node->getEndIterator()){
             double d1;
@@ -216,13 +208,11 @@ private:
                 positiveNode->addObject(*it);}
             ++it;}
         //*improve* add objects inline
-        std::cout<<"Negative node has "<<negativeNode->getNumObjects()<<" objects"<<std::endl;
-        std::cout<<"Positive node has "<<positiveNode->getNumObjects()<<" objects"<<std::endl;
-        std::cout<<"Now moving to the positive half"<<std::endl;
+
         node->_positiveHalf = splitNode(positiveNode, depth - 1, minObjs);
-        std::cout<<"Now moving to the negative half"<<std::endl;
+
         node->_negativeHalf = splitNode(negativeNode, depth - 1, minObjs);
-        std::cout<<"Returning self at the end"<<std::endl;
+
         return node;}
 
     struct stackElement{
@@ -234,7 +224,7 @@ private:
         double tMin;
         double tMax;};
 public:
-    KdTree(double ti = 100, double tt = 500, int depth = 10, int minObjs = 1):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
+    KdTree(double ti = 1, double tt = 80, int depth = 50, int minObjs = 10):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
 
     ~KdTree(){
         deleteTree();}
@@ -248,8 +238,8 @@ public:
             assert((*beginObjectsIt)->hasBoundingBoxCapability());
             _root->addObject((*beginObjectsIt));
             ++beginObjectsIt;}
-        std::cout<<"Inserted "<<_root->getNumObjects()<<" objects at root level"<<std::endl;
-        std::cout<<"Now calling split node"<<std::endl;
+
+
         splitNode(_root, _depth, _minObjs);
         return true;}
 
@@ -291,7 +281,7 @@ public:
                         dimensionOfSplit = 2;
                     }
 
-                    if(tPlane > 0){
+                    if(tPlane >= 0){
                         if(r.getDirection()[dimensionOfSplit] > 0){
                             nearChild = parent->_negativeHalf;
                             farChild = parent->_positiveHalf;
@@ -326,13 +316,13 @@ public:
                 isect minIntersection;
                 bool haveOne = false;
                 typename Node<object_data_type>::iterator it = parent->getBeginIterator();
-                //std::cout<<"Node content "<<parent->getNumObjects()<<" objects"<<std::endl;
+
                 while (it != parent->getEndIterator()){
                     //calculate intersection
                     //check if it exists in boundbox
                     //check vs closest point
                     isect cur;
-                    if( (*it)->intersect( r, cur )){
+                    if( (*it)->intersect(r, cur )){
                         Vec3d pointOfintersect = r.at(cur.t );
                         if((*it)->getBoundingBox().intersects(pointOfintersect)){
                             if(!haveOne){
