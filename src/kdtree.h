@@ -21,7 +21,7 @@ class Node{
 public:
     typedef T object_data_type;
     typedef T* object_pointer;
-    typedef typename std::vector<object_pointer>::iterator iterator;
+    typedef typename std::vector<object_pointer>::const_iterator iterator;
     typedef Node<T>* node_pointer;
     node_pointer _positiveHalf;
     node_pointer _negativeHalf;
@@ -91,7 +91,7 @@ class KdTree
 {
 public:
     typedef T object_data_type;
-    typedef typename std::vector<T*>::iterator object_pointer_iterator;
+    typedef typename std::vector<T*>::const_iterator object_pointer_iterator;
     typedef typename Node<object_data_type>::node_pointer node_pointer;
 private:
     double _ti, _tt;
