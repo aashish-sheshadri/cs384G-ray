@@ -57,6 +57,6 @@ private:
 	Scene* scene;
     bool checkTotalInternal(const ray& r,const isect& i);
     bool m_bBufferReady;
-    KdTree<BoundingBox> kdTree;};
+    KdTree<Geometry> kdTree;};
 
 #endif // __RAYTRACER_H__

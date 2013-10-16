@@ -20,7 +20,8 @@ template<typename T>
 class Node{
 public:
     typedef T object_data_type;
-    typedef typename std::vector<object_data_type>::iterator iterator;
+    typedef T* object_pointer;
+    typedef typename std::vector<object_pointer>::iterator iterator;
     typedef Node<T>* node_pointer;
     node_pointer _positiveHalf;
     node_pointer _negativeHalf;
@@ -28,14 +29,12 @@ private:
     Vec3d _splittingPlaneNormal;
     double _splittingPlaneDist;
     BoundingBox _box;
-    bool    _isLeaf;
-    std::vector<object_data_type> _objects;
+    std::vector<object_pointer> _objects;
 public:
     Node():_positiveHalf(NULL),
         _negativeHalf(NULL),
         _splittingPlaneNormal(Vec3d(0.0f,0.0f,0.0f)),
         _splittingPlaneDist(0.0f),
-        _isLeaf(false), // Asume we are alway non leaf unless we run the make tree alg
         _box(BoundingBox()){}
 
     ~Node(){
@@ -43,6 +42,9 @@ public:
             delete _positiveHalf;
         if(_negativeHalf!=NULL)
             delete _negativeHalf;}
+
+    bool isLeaf(){
+        return ((_positiveHalf==NULL)&&(_negativeHalf==NULL));}
 
     void setPlaneDist(double d){
         _splittingPlaneDist = d;}
@@ -53,13 +55,12 @@ public:
     BoundingBox& getBoundingBox(){
         return _box;}
 
-    //add object's bounding box aswell
-    void addObject(const object_data_type& obj){
-        getBoundingBox().merge(obj);
+    void addObject(object_pointer obj){
+        this->_box.merge(obj->getBoundingBox());
         _objects.push_back(obj);}
 
-    double getArea(object_data_type obj){
-        return obj.area();}
+    double getArea(object_pointer obj) const{
+        return obj->getBoundingBox().area();}
 
     double getBoxArea(){
         return _box.area();}
@@ -67,21 +68,18 @@ public:
     double getObjectsArea(){
         double toReturn = 0.0f;
         for(iterator it = _objects.begin(); it!=_objects.end(); ++it){
-            assert(!((*it).isEmpty()));
-            toReturn += (*it).area();}
+            assert(!((*it)->getBoundingBox().isEmpty()));
+            toReturn += (*it)->getBoundingBox().area();}
         return toReturn;}
 
     iterator getBeginIterator(){
         return _objects.begin();}
-
 
     iterator getEndIterator(){
         return _objects.end();}
 
     bool hasObjects(){
         return !_objects.empty();}
-    bool isLeaf(){
-        return _isLeaf;}
 
     unsigned int getNumObjects(){
         return _objects.size();}};
@@ -91,6 +89,7 @@ class KdTree
 {
 public:
     typedef T object_data_type;
+    typedef typename std::vector<T*>::iterator object_pointer_iterator;
     typedef typename Node<object_data_type>::node_pointer node_pointer;
 private:
     double _ti, _tt;
@@ -112,11 +111,11 @@ private:
         objDistancePairs.reserve(2*node->getNumObjects());
 
         for(typename Node<object_data_type>::iterator it = node->getBeginIterator(); it!=node->getEndIterator(); ++it){
-            assert(!((*it).isEmpty()));
+            assert(!((*it)->getBoundingBox().isEmpty()));
             double d1;
             double d2;
             Vec3d normal(0.0f,0.0f,0.0f);
-            (*it).getPlaneNormsDists(dim, normal, d1, d2);
+            (*it)->getBoundingBox().getPlaneNormsDists(dim, normal, d1, d2);
             objDistancePairs.push_back(std::make_pair(d1,it));
             objDistancePairs.push_back(std::make_pair(d2,it));}
 
@@ -158,30 +157,26 @@ private:
         return bestD;}
 
 public:
-    KdTree(double ti = 100, double tt = 500, int depth = 20, int minObjs = 2):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
-    bool buildTree(std::vector<Geometry*>::const_iterator beginObjectsIt, std::vector<Geometry*>::const_iterator endObjectsIt){
+    KdTree(double ti = 100, double tt = 500, int depth = 15, int minObjs = 2):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
+    bool buildTree(object_pointer_iterator beginObjectsIt, object_pointer_iterator endObjectsIt){
         if(_root!=NULL)
             return false;
         _root = new Node<object_data_type>();
 
         while(beginObjectsIt!=endObjectsIt){
-            _root->getBoundingBox().merge((*beginObjectsIt)->getBoundingBox());
-            _root->addObject(*beginObjectsIt);
+            _root->addObject((*beginObjectsIt));
             ++beginObjectsIt;}
         splitNode(_root, _depth, _minObjs);}
 
     node_pointer splitNode(node_pointer node, int depth, int minObjs){
         unsigned int currNumObjs = node->getNumObjects();
-        if(currNumObjs<=minObjs || depth < 0){
-            node->_isLeaf = true;
+        if(currNumObjs<=minObjs || depth < 0)
             return node;
-        }
         node_pointer positiveNode = new Node<object_data_type>();
         node_pointer negativeNode = new Node<object_data_type>();
         double xH = computeH(node,0);
         double yH = computeH(node,1);
         double zH = computeH(node,2);
-
         node->setPlaneDist(xH);
         node->setPlaneNormal(Vec3d(1.0f,0.0f,0.0f));
         int dim = 0;
@@ -196,7 +191,6 @@ public:
             node->setPlaneDist(zH);
             dim = 2;
             dMin = zH;}
-
         typename Node<object_data_type>::iterator it = node->getBeginIterator();
         while(it!=node->getEndIterator()){
             Vec3d normal(0.0f,0.0f,0.0f);
