@@ -106,12 +106,12 @@ private:
     int _depth;
     int _minObjs;
     node_pointer _root;
-    double computeH(Node<object_data_type>* node, int dim){
+    double computeH(Node<object_data_type>* node, int dim, double& bestD){
+        typedef std::pair<double, typename Node<object_data_type>::iterator > internalType;
         if(!node->hasObjects()){
             return -1.0f;}
         double totalArea = node->getBoxArea();
         double min = 1.0e308; // 1.0e308 is close to infinity... close enough for us!
-        double bestD = 0.0f;
         std::vector<std::pair<double, typename Node<object_data_type>::iterator> > objDistancePairs;
         objDistancePairs.reserve(2*node->getNumObjects());
 
@@ -119,13 +119,20 @@ private:
             assert(!((*it)->getBoundingBox().isEmpty()));
             double d1;
             double d2;
-            Vec3d normal(0.0f,0.0f,0.0f);
-            (*it)->getBoundingBox().getPlaneNormsDists(dim, normal, d1, d2);
+            (*it)->getBoundingBox().getPlaneNormsDists(dim, d1, d2);
             objDistancePairs.push_back(std::make_pair(d1,it));
             objDistancePairs.push_back(std::make_pair(d2,it));}
 
-        typedef std::pair<double, typename Node<object_data_type>::iterator > internalType;
+        std::cout<<"Printing unsorted planes in dim: "<<dim<<std::endl;
+        for(typename std::vector<internalType>::iterator it=objDistancePairs.begin(); it!= objDistancePairs.end(); ++it){
+            std::cout<<(*it).first<<" ";}
+        std::cout<<std::endl;
+
         std::sort(objDistancePairs.begin(), objDistancePairs.end(), ComparePair<internalType>());
+        std::cout<<"Printing sorted planes in dim: "<<dim<<std::endl;
+        for(typename std::vector<internalType>::iterator it=objDistancePairs.begin(); it!= objDistancePairs.end(); ++it){
+            std::cout<<(*it).first<<" ";}
+        std::cout<<std::endl;
         std::set<typename Node<object_data_type>::iterator> transientSet;
         int negCounter = 0, posCounter = node->getNumObjects();
         double negativeArea = 0.0f;
@@ -158,47 +165,64 @@ private:
                 min = hValue;
                 bestD = (*it).first;}
             prevIt = it;}
-        return bestD;}
+        bestD;
+        return min;}
 
     node_pointer splitNode(node_pointer node, int depth, int minObjs){
         unsigned int currNumObjs = node->getNumObjects();
-        if(currNumObjs<=minObjs || depth < 0)
-            return node;
+        if(currNumObjs<=minObjs || depth < 0){
+            std::cout<<"Reached leaf termination"<<std::endl;
+            return node;}
         node_pointer positiveNode = new Node<object_data_type>();
         node_pointer negativeNode = new Node<object_data_type>();
-        double xH = computeH(node,0);
-        double yH = computeH(node,1);
-        double zH = computeH(node,2);
-        node->setPlaneDist(xH);
+
+        double xD = 0.0f;
+        double yD = 0.0f;
+        double zD = 0.0f;
+        double xH = computeH(node,0,xD);
+        double yH = computeH(node,1,yD);
+        double zH = computeH(node,2,zD);
+        node->setPlaneDist(xD);
         node->setPlaneNormal(Vec3d(1.0f,0.0f,0.0f));
         int dim = 0;
-        double dMin = xH;
-        if(yH<dMin){
+        double hMin = xH;
+        double dMin = xD;
+        if(yH<hMin){
             node->setPlaneNormal(Vec3d(0.0f,1.0f,0.0f));
-            node->setPlaneDist(yH);
+            node->setPlaneDist(yD);
             dim = 1;
-            dMin = yH;}
-        if(zH<dMin){
+            hMin = yH;
+            dMin = yD;}
+        if(zH<hMin){
             node->setPlaneNormal(Vec3d(0.0f,0.0f,1.0f));
-            node->setPlaneDist(zH);
+            node->setPlaneDist(zD);
             dim = 2;
-            dMin = zH;}
+            hMin = zH;
+            dMin = zD;}
+        std::cout<<"Minimum dimension is: "<<dim<<std::endl;
+        std::cout<<"Minimum plane distance is: "<<dMin<<std::endl;
+        std::cout<<"Minimum h is: "<<hMin<<std::endl;
         typename Node<object_data_type>::iterator it = node->getBeginIterator();
         while(it!=node->getEndIterator()){
-            Vec3d normal(0.0f,0.0f,0.0f);
             double d1;
             double d2;
-            (*it)->getBoundingBox().getPlaneNormsDists(dim, normal, d1, d2);
-            if(dMin>d2){
+            (*it)->getBoundingBox().getPlaneNormsDists(dim, d1, d2);
+            if(dMin>=d2){
                 negativeNode->addObject(*it);
-            } else if(dMin<d1){
+            } else if(dMin<=d1){
                 positiveNode->addObject(*it);
             } else {
                 negativeNode->addObject(*it);
                 positiveNode->addObject(*it);}
             ++it;}
+        //*improve* add objects inline
+        std::cout<<"Negative node has "<<negativeNode->getNumObjects()<<" objects"<<std::endl;
+        std::cout<<"Positive node has "<<positiveNode->getNumObjects()<<" objects"<<std::endl;
+        std::cout<<"Now moving to the positive half"<<std::endl;
         node->_positiveHalf = splitNode(positiveNode, depth - 1, minObjs);
+        std::cout<<"Now moving to the negative half"<<std::endl;
         node->_negativeHalf = splitNode(negativeNode, depth - 1, minObjs);
+        std::cout<<"Returning self at the end"<<std::endl;
         return node;}
 
     struct stackElement{
@@ -210,7 +234,7 @@ private:
         double tMin;
         double tMax;};
 public:
-    KdTree(double ti = 100, double tt = 500, int depth = 100, int minObjs = 2):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
+    KdTree(double ti = 100, double tt = 500, int depth = 10, int minObjs = 1):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
 
     ~KdTree(){
         deleteTree();}
@@ -221,8 +245,11 @@ public:
         _root = new Node<object_data_type>();
 
         while(beginObjectsIt!=endObjectsIt){
+            assert((*beginObjectsIt)->hasBoundingBoxCapability());
             _root->addObject((*beginObjectsIt));
             ++beginObjectsIt;}
+        std::cout<<"Inserted "<<_root->getNumObjects()<<" objects at root level"<<std::endl;
+        std::cout<<"Now calling split node"<<std::endl;
         splitNode(_root, _depth, _minObjs);
         return true;}
 
