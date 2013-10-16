@@ -126,9 +126,9 @@ bool TrimeshFace::intersectLocal( const ray& r, isect& i ) const
 
     // phong interpolation
     if(parent->vertNorms){
-        Vec3d weightFromA(parent->normals[0][0]*barycentricCords[0] , parent->normals[0][1]*barycentricCords[0] , parent->normals[0][2]*barycentricCords[0]);
-        Vec3d weightFromB(parent->normals[1][0]*barycentricCords[1] , parent->normals[1][1]*barycentricCords[1] , parent->normals[1][2]*barycentricCords[1]);
-        Vec3d weightFromC(parent->normals[2][0]*barycentricCords[2] , parent->normals[2][1]*barycentricCords[2] , parent->normals[2][2]*barycentricCords[2]);
+        Vec3d weightFromA(parent->normals[ids[0]][0]*barycentricCords[0] , parent->normals[ids[0]][1]*barycentricCords[0] , parent->normals[ids[0]][2]*barycentricCords[0] );
+        Vec3d weightFromB(parent->normals[ids[1]][0]*barycentricCords[1] , parent->normals[ids[1]][1]*barycentricCords[1] , parent->normals[ids[1]][2]*barycentricCords[1] );
+        Vec3d weightFromC(parent->normals[ids[2]][0]*barycentricCords[2] , parent->normals[ids[2]][1]*barycentricCords[2] , parent->normals[ids[2]][2]*barycentricCords[2] );
         planeNormal = weightFromA + weightFromB + weightFromC;
         planeNormal.normalize();
     }
