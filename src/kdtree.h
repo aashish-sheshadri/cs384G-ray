@@ -260,7 +260,7 @@ public:
         _root = NULL;}
     bool rayTreeTraversal(isect& i, const ray& r){
             double tMin=0.0f, tMax=0.0f, tPlane=0.0f;
-            if(_root->getBoundingBox().intersect( r, tMin, tMax))
+            if(!_root->getBoundingBox().intersect( r, tMin, tMax))
                 return false;
             std::stack<stackElement> stack;
             node_pointer farChild, parent, nearChild;
@@ -276,22 +276,38 @@ public:
                 tMin = current.tMin;
                 tMax = current.tMax;
                 while (!parent->isLeaf()){
+                    int dimensionOfSplit = -1;
                     if(parent->getSplittingPlaneNormal()[0] == 1){
                         tPlane = parent->getSplittingPlaneDist() - r.getPosition()[0];
                         tPlane /= (double)r.getDirection()[0];
+                        dimensionOfSplit = 0;
                     } else if(parent->getSplittingPlaneNormal()[1] == 1){
                         tPlane = parent->getSplittingPlaneDist() - r.getPosition()[1];
                         tPlane /= (double)r.getDirection()[1];
+                        dimensionOfSplit = 1;
                     } else if(parent->getSplittingPlaneNormal()[2] == 1){
                         tPlane = parent->getSplittingPlaneDist() - r.getPosition()[2];
-                        tPlane /= (double)r.getDirection()[2];}
+                        tPlane /= (double)r.getDirection()[2];
+                        dimensionOfSplit = 2;
+                    }
 
                     if(tPlane > 0){
-                        nearChild = parent->_negativeHalf;
-                        farChild = parent->_positiveHalf;
+                        if(r.getDirection()[dimensionOfSplit] > 0){
+                            nearChild = parent->_negativeHalf;
+                            farChild = parent->_positiveHalf;
+                        } else {
+                            nearChild = parent->_positiveHalf;
+                            farChild = parent->_negativeHalf;
+                        }
                     } else {
-                        nearChild = parent->_positiveHalf;
-                        farChild = parent->_negativeHalf;}
+                        if(r.getDirection()[dimensionOfSplit] > 0){
+                            nearChild = parent->_positiveHalf;
+                            farChild = parent->_negativeHalf;
+                        } else {
+                            nearChild = parent->_negativeHalf;
+                            farChild = parent->_positiveHalf;
+                        }
+                    }
 
                     if(tPlane >= tMax || tPlane <0){
                         parent = nearChild;
@@ -310,6 +326,7 @@ public:
                 isect minIntersection;
                 bool haveOne = false;
                 typename Node<object_data_type>::iterator it = parent->getBeginIterator();
+                //std::cout<<"Node content "<<parent->getNumObjects()<<" objects"<<std::endl;
                 while (it != parent->getEndIterator()){
                     //calculate intersection
                     //check if it exists in boundbox
@@ -328,8 +345,10 @@ public:
                                 closestObject = *it;
                                 closestPointIntersect = pointOfintersect;}}}
                     ++it;}
-                i = minIntersection;
-                return true;}
+                if(haveOne){
+                    i = minIntersection;
+                    return true;
+                }}
             return false;}};
 
 
