@@ -97,7 +97,7 @@ public:
 		bEmpty = target.bEmpty;
 	}
 
-    double area() const{
+    double area(){
 		if (bEmpty) return 0.0;
 		else if (dirty) {
 			bArea = 2.0 * ((bmax[0] - bmin[0]) * (bmax[1] - bmin[1]) + (bmax[1] - bmin[1]) * (bmax[2] - bmin[2]) + (bmax[2] - bmin[2]) * (bmax[0] - bmin[0]));

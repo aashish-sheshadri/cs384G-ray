@@ -59,8 +59,9 @@ public:
         this->_box.merge(obj->getBoundingBox());
         _objects.push_back(obj);}
 
-    double getArea(object_pointer obj) const{
-        return obj->getBoundingBox().area();}
+    double getArea(object_pointer obj){
+        BoundingBox tempBox = obj->getBoundingBox();
+        return tempBox.area();}
 
     double getBoxArea(){
         return _box.area();}
@@ -69,7 +70,8 @@ public:
         double toReturn = 0.0f;
         for(iterator it = _objects.begin(); it!=_objects.end(); ++it){
             assert(!((*it)->getBoundingBox().isEmpty()));
-            toReturn += (*it)->getBoundingBox().area();}
+            BoundingBox tempBox = (*it)->getBoundingBox();
+            toReturn += tempBox.area();}
         return toReturn;}
 
     iterator getBeginIterator(){
@@ -196,7 +198,7 @@ public:
             Vec3d normal(0.0f,0.0f,0.0f);
             double d1;
             double d2;
-            (*it).getPlaneNormsDists(dim, normal, d1, d2);
+            (*it)->getBoundingBox().getPlaneNormsDists(dim, normal, d1, d2);
             if(dMin>d2){
                 negativeNode->addObject(*it);
             } else if(dMin<d1){
