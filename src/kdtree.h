@@ -248,6 +248,8 @@ public:
             return;
         delete _root;
         _root = NULL;}
+
+
     bool rayTreeTraversal(isect& i, const ray& r){
             double tMin=0.0f, tMax=0.0f, tPlane=0.0f;
             if(!_root->getBoundingBox().intersect( r, tMin, tMax))
@@ -299,7 +301,7 @@ public:
                         }
                     }
 
-                    if(tPlane >= tMax || tPlane <0){
+                    if(tPlane >= tMax || tPlane <=0){
                         parent = nearChild;
                     } else if(tPlane <= tMin){
                         parent = farChild;
