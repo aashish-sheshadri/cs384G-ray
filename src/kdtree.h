@@ -28,12 +28,14 @@ private:
     Vec3d _splittingPlaneNormal;
     double _splittingPlaneDist;
     BoundingBox _box;
+    bool    _isLeaf;
     std::vector<object_data_type> _objects;
 public:
     Node():_positiveHalf(NULL),
         _negativeHalf(NULL),
         _splittingPlaneNormal(Vec3d(0.0f,0.0f,0.0f)),
         _splittingPlaneDist(0.0f),
+        _isLeaf(false), // Asume we are alway non leaf unless we run the make tree alg
         _box(BoundingBox()){}
 
     ~Node(){
@@ -51,7 +53,9 @@ public:
     BoundingBox& getBoundingBox(){
         return _box;}
 
+    //add object's bounding box aswell
     void addObject(const object_data_type& obj){
+        getBoundingBox().merge(obj);
         _objects.push_back(obj);}
 
     double getArea(object_data_type obj){
@@ -76,6 +80,8 @@ public:
 
     bool hasObjects(){
         return !_objects.empty();}
+    bool isLeaf(){
+        return _isLeaf;}
 
     unsigned int getNumObjects(){
         return _objects.size();}};
@@ -152,7 +158,7 @@ private:
         return bestD;}
 
 public:
-    KdTree(double ti = 100, double tt = 500, int depth = 15, int minObjs = 2):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
+    KdTree(double ti = 100, double tt = 500, int depth = 20, int minObjs = 2):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
     bool buildTree(std::vector<Geometry*>::const_iterator beginObjectsIt, std::vector<Geometry*>::const_iterator endObjectsIt){
         if(_root!=NULL)
             return false;
@@ -160,19 +166,22 @@ public:
 
         while(beginObjectsIt!=endObjectsIt){
             _root->getBoundingBox().merge((*beginObjectsIt)->getBoundingBox());
-            _root->addObject((*beginObjectsIt)->getBoundingBox());
+            _root->addObject(*beginObjectsIt);
             ++beginObjectsIt;}
         splitNode(_root, _depth, _minObjs);}
 
     node_pointer splitNode(node_pointer node, int depth, int minObjs){
         unsigned int currNumObjs = node->getNumObjects();
-        if(currNumObjs<=minObjs || depth < 0)
+        if(currNumObjs<=minObjs || depth < 0){
+            node->_isLeaf = true;
             return node;
+        }
         node_pointer positiveNode = new Node<object_data_type>();
         node_pointer negativeNode = new Node<object_data_type>();
         double xH = computeH(node,0);
         double yH = computeH(node,1);
         double zH = computeH(node,2);
+
         node->setPlaneDist(xH);
         node->setPlaneNormal(Vec3d(1.0f,0.0f,0.0f));
         int dim = 0;
@@ -187,6 +196,7 @@ public:
             node->setPlaneDist(zH);
             dim = 2;
             dMin = zH;}
+
         typename Node<object_data_type>::iterator it = node->getBeginIterator();
         while(it!=node->getEndIterator()){
             Vec3d normal(0.0f,0.0f,0.0f);
@@ -194,15 +204,11 @@ public:
             double d2;
             (*it).getPlaneNormsDists(dim, normal, d1, d2);
             if(dMin>d2){
-                negativeNode->getBoundingBox().merge(*it);
                 negativeNode->addObject(*it);
             } else if(dMin<d1){
-                positiveNode->getBoundingBox().merge(*it);
                 positiveNode->addObject(*it);
             } else {
-                negativeNode->getBoundingBox().merge(*it);
                 negativeNode->addObject(*it);
-                positiveNode->getBoundingBox().merge(*it);
                 positiveNode->addObject(*it);}}
         node->_positiveHalf = splitNode(positiveNode, depth - 1, minObjs);
         node->_negativeHalf = splitNode(negativeNode, depth - 1, minObjs);}
