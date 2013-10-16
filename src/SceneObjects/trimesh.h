@@ -7,6 +7,7 @@
 #include "../scene/ray.h"
 #include "../scene/material.h"
 #include "../scene/scene.h"
+#include "../kdtree.h"
 
 template <typename T>
 int updateCordsToKeep(int normDim, T planeNormal){
@@ -32,7 +33,7 @@ class Trimesh : public MaterialSceneObject
     Normals normals;
     Materials materials;
 	BoundingBox localBounds;
-
+    KdTree<TrimeshFace> kdTree;
 public:
     Trimesh( Scene *scene, Material *mat, TransformNode *transform )
         : MaterialSceneObject(scene, mat), 

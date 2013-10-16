@@ -98,16 +98,11 @@ private:
     int _depth;
     int _minObjs;
     node_pointer _root;
-    bool addNode(){
-
-    }
-
     double computeH(Node<object_data_type>* node, int dim){
         if(!node->hasObjects()){
             return -1.0f;}
         double totalArea = node->getBoxArea();
         double min = 1.0e308; // 1.0e308 is close to infinity... close enough for us!
-
         double bestD = 0.0f;
         std::vector<std::pair<double, typename Node<object_data_type>::iterator> > objDistancePairs;
         objDistancePairs.reserve(2*node->getNumObjects());
@@ -122,7 +117,6 @@ private:
             objDistancePairs.push_back(std::make_pair(d2,it));}
 
         typedef std::pair<double, typename Node<object_data_type>::iterator > internalType;
-        std::cout<<std::endl;
         std::sort(objDistancePairs.begin(), objDistancePairs.end(), ComparePair<internalType>());
         std::set<typename Node<object_data_type>::iterator> transientSet;
         int negCounter = 0, posCounter = node->getNumObjects();
