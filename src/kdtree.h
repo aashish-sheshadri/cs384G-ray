@@ -91,6 +91,7 @@ class KdTree
 {
 public:
     typedef T object_data_type;
+    typedef T* object_pointer;
     typedef typename std::vector<T*>::const_iterator object_pointer_iterator;
     typedef typename Node<object_data_type>::node_pointer node_pointer;
 private:
@@ -152,18 +153,6 @@ private:
             prevIt = it;}
         return bestD;}
 
-public:
-    KdTree(double ti = 100, double tt = 500, int depth = 15, int minObjs = 2):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
-    bool buildTree(object_pointer_iterator beginObjectsIt, object_pointer_iterator endObjectsIt){
-        if(_root!=NULL)
-            return false;
-        _root = new Node<object_data_type>();
-
-        while(beginObjectsIt!=endObjectsIt){
-            _root->addObject((*beginObjectsIt));
-            ++beginObjectsIt;}
-        splitNode(_root, _depth, _minObjs);}
-
     node_pointer splitNode(node_pointer node, int depth, int minObjs){
         unsigned int currNumObjs = node->getNumObjects();
         if(currNumObjs<=minObjs || depth < 0)
@@ -202,6 +191,73 @@ public:
                 positiveNode->addObject(*it);}}
         node->_positiveHalf = splitNode(positiveNode, depth - 1, minObjs);
         node->_negativeHalf = splitNode(negativeNode, depth - 1, minObjs);}
+
+    struct stackElement{
+        stackElement(){
+            node = NULL;
+            tMin = 1.0e308;
+            tMax = -1.0e308;}
+        node_pointer node;
+        double tMin;
+        double tMax;};
+
+    object_pointer rayTreeTraversal(node_pointer root, ray& r){
+        double tMin=0.0f, tMax=0.0f, tPlane=0.0f;
+        if(root->getBoundingBox().intersect( r, tMin, tMax))
+            return NULL;
+        std::vector<stackElement> stack;
+        node_pointer *farChild, *parent, *nearChild;
+        stackElement elem;
+        elem.node = root;
+        elem.tMin = tMin;
+        elem.tMax = tMax;
+        stack.push_back(elem);
+        while( !stack.empty() ){
+            stackElement current = stack.pop_back();
+            parent = current.node;
+            tMin = current.tMin;
+            tMax = current.tMax;
+            while (!parent->isLeaf()){
+                if(parent->splittingPlaneNormal[0] == 1){
+                    tPlane = parent->_splittingPlaneDist - r.getPosition()[0];
+                    tPlane /= r.getDirection()[0];
+                } else if(parent->_splittingPlaneNormal[1] == 1){
+                    tPlane = parent->_splittingPlaneDist - r.getPosition()[1];
+                    tPlane /= r.getDirection()[1];
+                } else if(parent->_splittingPlaneNormal[2] == 1){
+                    tPlane = parent->_splittingPlaneDist - r.getPosition()[2];
+                    tPlane /= r.getDirection()[2];}
+
+                if(tPlane > 0){
+                    nearChild = parent->left;
+                    farChild = parent->right;
+                } else {
+                    nearChild = parent->right;
+                    farChild = parent->left;}
+
+                if(tPlane >= tMax || tPlane <0){
+                    parent = nearChild;
+                } else if(tPlane <= tMin){
+                    parent = farChild;
+                } else {
+                    stackElement tmp;
+                    tmp.node = farChild;
+                    tmp.tMin = tPlane;
+                    tmp.tMax = tMax;
+                    stack.push_back(tmp);
+                    parent = nearChild;
+                    tMax = tPlane;}}}}
+public:
+    KdTree(double ti = 100, double tt = 500, int depth = 15, int minObjs = 2):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
+    bool buildTree(object_pointer_iterator beginObjectsIt, object_pointer_iterator endObjectsIt){
+        if(_root!=NULL)
+            return false;
+        _root = new Node<object_data_type>();
+
+        while(beginObjectsIt!=endObjectsIt){
+            _root->addObject((*beginObjectsIt));
+            ++beginObjectsIt;}
+        splitNode(_root, _depth, _minObjs);}
 
     void deleteTree(){
         if(_root == NULL)
