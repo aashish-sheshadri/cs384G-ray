@@ -229,7 +229,8 @@ public:
     void deleteTree(){
         if(_root == NULL)
             return;
-        delete _root;}
+        delete _root;
+        _root = NULL;}
     bool rayTreeTraversal(isect& i, const ray& r){
             double tMin=0.0f, tMax=0.0f, tPlane=0.0f;
             if(_root->getBoundingBox().intersect( r, tMin, tMax))

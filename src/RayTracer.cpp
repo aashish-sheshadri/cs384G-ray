@@ -182,7 +182,9 @@ bool RayTracer::loadScene( char* fn )
 		scene = parser.parseScene();
         if(traceUI->acceleration()){
             // *improve* do preprocessing for bounding boxes
-            kdTree.buildTree(scene->beginObjects(),scene->endObjects());}}
+            if(!kdTree.buildTree(scene->beginObjects(),scene->endObjects())){
+                kdTree.deleteTree();
+                kdTree.buildTree(scene->beginObjects(),scene->endObjects());}}}
 	catch( SyntaxErrorException& pe ) {
 		traceUI->alert( pe.formattedMessage() );
 		return false;
