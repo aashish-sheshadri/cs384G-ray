@@ -52,7 +52,8 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
     //*improve* use thresh (gain from shooting additional rays)
 
     isect i;
-	if( scene->intersect( r, i ) ) {
+
+    if( (traceUI->acceleration() && kdTree.rayTreeTraversal(i, r)) || scene->intersect( r, i ) ) {
         const Material& m = i.getMaterial();
         Vec3d intensity = m.shade(scene, r, i);
         if(depth < 1)

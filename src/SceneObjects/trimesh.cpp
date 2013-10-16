@@ -7,8 +7,7 @@ using namespace std;
 Trimesh::~Trimesh()
 {
 	for( Materials::iterator i = materials.begin(); i != materials.end(); ++i )
-		delete *i;
-}
+		delete *i;}
 
 // must add vertices, normals, and materials IN ORDER
 void Trimesh::addVertex( const Vec3d &v )
@@ -54,7 +53,7 @@ Trimesh::doubleCheck()
 
 bool Trimesh::intersectLocal(const ray&r, isect&i) const
 {
-	double tmin = 0.0;
+    double tmin = 0.0;
 	double tmax = 0.0;
 	typedef Faces::const_iterator iter;
 	bool have_one = false;
@@ -72,6 +71,9 @@ bool Trimesh::intersectLocal(const ray&r, isect&i) const
 	if( !have_one ) i.setT(1000.0);
 	return have_one;
 }
+
+void Trimesh::constructKDTree(){
+    this->kdTree.buildTree(this->faces.begin(),this->faces.end());}
 
 // Intersect ray r with the triangle abc.  If it hits returns true,
 // and puts the t parameter, barycentric coordinates, normal, object id,

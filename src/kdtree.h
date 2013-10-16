@@ -7,6 +7,8 @@
 #include <utility>
 #include <cassert>
 #include <set>
+#include <stack>
+//#include "scene/ray.h"
 
 template<typename T>
 struct ComparePair{
@@ -31,6 +33,11 @@ private:
     BoundingBox _box;
     std::vector<object_pointer> _objects;
 public:
+    const Vec3d& getSplittingPlaneNormal(){
+        return _splittingPlaneNormal;}
+    const double& getSplittingPlaneDist(){
+        return _splittingPlaneDist;}
+
     Node():_positiveHalf(NULL),
         _negativeHalf(NULL),
         _splittingPlaneNormal(Vec3d(0.0f,0.0f,0.0f)),
@@ -188,9 +195,11 @@ private:
                 positiveNode->addObject(*it);
             } else {
                 negativeNode->addObject(*it);
-                positiveNode->addObject(*it);}}
+                positiveNode->addObject(*it);}
+            ++it;}
         node->_positiveHalf = splitNode(positiveNode, depth - 1, minObjs);
-        node->_negativeHalf = splitNode(negativeNode, depth - 1, minObjs);}
+        node->_negativeHalf = splitNode(negativeNode, depth - 1, minObjs);
+        return node;}
 
     struct stackElement{
         stackElement(){
@@ -200,55 +209,12 @@ private:
         node_pointer node;
         double tMin;
         double tMax;};
-
-    object_pointer rayTreeTraversal(node_pointer root, ray& r){
-        double tMin=0.0f, tMax=0.0f, tPlane=0.0f;
-        if(root->getBoundingBox().intersect( r, tMin, tMax))
-            return NULL;
-        std::vector<stackElement> stack;
-        node_pointer *farChild, *parent, *nearChild;
-        stackElement elem;
-        elem.node = root;
-        elem.tMin = tMin;
-        elem.tMax = tMax;
-        stack.push_back(elem);
-        while( !stack.empty() ){
-            stackElement current = stack.pop_back();
-            parent = current.node;
-            tMin = current.tMin;
-            tMax = current.tMax;
-            while (!parent->isLeaf()){
-                if(parent->splittingPlaneNormal[0] == 1){
-                    tPlane = parent->_splittingPlaneDist - r.getPosition()[0];
-                    tPlane /= r.getDirection()[0];
-                } else if(parent->_splittingPlaneNormal[1] == 1){
-                    tPlane = parent->_splittingPlaneDist - r.getPosition()[1];
-                    tPlane /= r.getDirection()[1];
-                } else if(parent->_splittingPlaneNormal[2] == 1){
-                    tPlane = parent->_splittingPlaneDist - r.getPosition()[2];
-                    tPlane /= r.getDirection()[2];}
-
-                if(tPlane > 0){
-                    nearChild = parent->left;
-                    farChild = parent->right;
-                } else {
-                    nearChild = parent->right;
-                    farChild = parent->left;}
-
-                if(tPlane >= tMax || tPlane <0){
-                    parent = nearChild;
-                } else if(tPlane <= tMin){
-                    parent = farChild;
-                } else {
-                    stackElement tmp;
-                    tmp.node = farChild;
-                    tmp.tMin = tPlane;
-                    tmp.tMax = tMax;
-                    stack.push_back(tmp);
-                    parent = nearChild;
-                    tMax = tPlane;}}}}
 public:
-    KdTree(double ti = 100, double tt = 500, int depth = 15, int minObjs = 2):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
+    KdTree(double ti = 100, double tt = 500, int depth = 100, int minObjs = 2):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
+
+    ~KdTree(){
+        deleteTree();}
+
     bool buildTree(object_pointer_iterator beginObjectsIt, object_pointer_iterator endObjectsIt){
         if(_root!=NULL)
             return false;
@@ -257,12 +223,86 @@ public:
         while(beginObjectsIt!=endObjectsIt){
             _root->addObject((*beginObjectsIt));
             ++beginObjectsIt;}
-        splitNode(_root, _depth, _minObjs);}
+        splitNode(_root, _depth, _minObjs);
+        return true;}
 
     void deleteTree(){
         if(_root == NULL)
             return;
-        delete _root;}};
+        delete _root;}
+    bool rayTreeTraversal(isect& i, const ray& r){
+            double tMin=0.0f, tMax=0.0f, tPlane=0.0f;
+            if(_root->getBoundingBox().intersect( r, tMin, tMax))
+                return false;
+            std::stack<stackElement> stack;
+            node_pointer farChild, parent, nearChild;
+            stackElement elem;
+            elem.node = _root;
+            elem.tMin = tMin;
+            elem.tMax = tMax;
+            stack.push(elem);
+            while( !stack.empty() ){
+                stackElement current = stack.top();
+                stack.pop();
+                parent = current.node;
+                tMin = current.tMin;
+                tMax = current.tMax;
+                while (!parent->isLeaf()){
+                    if(parent->getSplittingPlaneNormal()[0] == 1){
+                        tPlane = parent->getSplittingPlaneDist() - r.getPosition()[0];
+                        tPlane /= (double)r.getDirection()[0];
+                    } else if(parent->getSplittingPlaneNormal()[1] == 1){
+                        tPlane = parent->getSplittingPlaneDist() - r.getPosition()[1];
+                        tPlane /= (double)r.getDirection()[1];
+                    } else if(parent->getSplittingPlaneNormal()[2] == 1){
+                        tPlane = parent->getSplittingPlaneDist() - r.getPosition()[2];
+                        tPlane /= (double)r.getDirection()[2];}
+
+                    if(tPlane > 0){
+                        nearChild = parent->_negativeHalf;
+                        farChild = parent->_positiveHalf;
+                    } else {
+                        nearChild = parent->_positiveHalf;
+                        farChild = parent->_negativeHalf;}
+
+                    if(tPlane >= tMax || tPlane <0){
+                        parent = nearChild;
+                    } else if(tPlane <= tMin){
+                        parent = farChild;
+                    } else {
+                        stackElement tmp;
+                        tmp.node = farChild;
+                        tmp.tMin = tPlane;
+                        tmp.tMax = tMax;
+                        stack.push(tmp);
+                        parent = nearChild;
+                        tMax = tPlane;}}
+                Vec3d closestPointIntersect (0.0f,0.0f,0.0f);
+                object_pointer closestObject = NULL;
+                isect minIntersection;
+                bool haveOne = false;
+                typename Node<object_data_type>::iterator it = parent->getBeginIterator();
+                while (it != parent->getEndIterator()){
+                    //calculate intersection
+                    //check if it exists in boundbox
+                    //check vs closest point
+                    isect cur;
+                    if( (*it)->intersect( r, cur )){
+                        Vec3d pointOfintersect = r.at(cur.t );
+                        if((*it)->getBoundingBox().intersects(pointOfintersect)){
+                            if(!haveOne){
+                                minIntersection = cur;
+                                closestObject = *it;
+                                closestPointIntersect = pointOfintersect;
+                                haveOne = true;
+                            } else if(minIntersection.t > cur.t){
+                                minIntersection = cur;
+                                closestObject = *it;
+                                closestPointIntersect = pointOfintersect;}}}
+                    ++it;}
+                i = minIntersection;
+                return true;}
+            return false;}};
 
 
 

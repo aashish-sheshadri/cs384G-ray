@@ -8,7 +8,6 @@
 #include "../scene/material.h"
 #include "../scene/scene.h"
 #include "../kdtree.h"
-
 template <typename T>
 int updateCordsToKeep(int normDim, T planeNormal){
     int cordToDrop = 0;
@@ -59,6 +58,8 @@ public:
     char *doubleCheck();
     
     void generateNormals();
+
+    void constructKDTree();
 
     bool hasBoundingBoxCapability() const { return true; }
       
