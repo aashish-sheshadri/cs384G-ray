@@ -206,12 +206,12 @@ private:
         double xD = 0.0f;
         double yD = 0.0f;
         double zD = 0.0f;
-//        double xH = computeH(node,0,xD);
-//        double yH = computeH(node,1,yD);
-//        double zH = computeH(node,2,zD);
-        double xH = computeHMedian(node,0,xD);
-        double yH = computeHMedian(node,1,yD);
-        double zH = computeHMedian(node,2,zD);
+        double xH = computeH(node,0,xD);
+        double yH = computeH(node,1,yD);
+        double zH = computeH(node,2,zD);
+//        double xH = computeHMedian(node,0,xD);
+//        double yH = computeHMedian(node,1,yD);
+//        double zH = computeHMedian(node,2,zD);
         node->setPlaneDist(xD);
         node->setPlaneNormal(Vec3d(1.0f,0.0f,0.0f));
         int dim = 0;
