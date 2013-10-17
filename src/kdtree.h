@@ -249,10 +249,10 @@ private:
         return node;}
 
     struct stackElement{
-        stackElement():node(NULL),tmin(1.0e308),tMax(-1.0e308){}
         node_pointer node;
         double tMin;
-        double tMax;};
+        double tMax;
+        stackElement():node(NULL),tMin(1.0e308),tMax(-1.0e308){}};
 public:
     KdTree(double ti = 1, double tt = 80, int depth = 15, int minObjs = 3):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
 
