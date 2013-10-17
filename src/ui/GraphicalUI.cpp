@@ -123,8 +123,6 @@ void GraphicalUI::cb_uniformSamplingRadioButton(Fl_Widget* o, void* v)
     ((GraphicalUI*)(o->user_data()))->m_bUniform= true ;
 }
 
-
-
 void GraphicalUI::cb_sampleSizeSlides(Fl_Widget* o, void* v)
 {
     ((GraphicalUI*)(o->user_data()))->m_nSampleSize=int( ((Fl_Slider *)o)->value() ) ;
@@ -144,6 +142,12 @@ void GraphicalUI::cb_heuristicCheckButton(Fl_Widget* o, void* v)
 {
     GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
     pUI->m_bSurfaceHeuristic = (((Fl_Check_Button*)o)->value() == 1);
+}
+
+void GraphicalUI::cb_adaptiveSamplingCheckButton(Fl_Widget* o, void* v)
+{
+    GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
+    pUI->m_bAdaptiveSampling = (((Fl_Check_Button*)o)->value() == 1);
 }
 
 void GraphicalUI::cb_accelerateCheckButton(Fl_Widget* o, void* v)
@@ -281,7 +285,7 @@ void GraphicalUI::stopTracing()
 GraphicalUI::GraphicalUI() {
 	// init.
 
-	m_mainWindow = new Fl_Window(100, 40, 350, 310, "Ray <Not Loaded>");
+    m_mainWindow = new Fl_Window(100, 40, 350, 320, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
 		// install menu bar
 		m_menubar = new Fl_Menu_Bar(0, 0, 320, 25);
@@ -358,8 +362,15 @@ GraphicalUI::GraphicalUI() {
         m_accelerateCheckButton->callback(cb_accelerateCheckButton);
         m_accelerateCheckButton->set();
 
+        // set up adaptive checkbox
+        m_bAdaptiveSampling = true;
+        m_adaptiveSamplingButton = new Fl_Check_Button(0, 260, 180, 20, "Adaptive Sampling");
+        m_adaptiveSamplingButton->user_data((void*)(this));
+        m_adaptiveSamplingButton->callback(cb_accelerateCheckButton);
+        m_adaptiveSamplingButton->set();
+
 		// set up debugging display checkbox
-        m_debuggingDisplayCheckButton = new Fl_Check_Button(0, 280, 180, 20, "Debugging display");
+        m_debuggingDisplayCheckButton = new Fl_Check_Button(0, 290, 180, 20, "Debugging display");
 		m_debuggingDisplayCheckButton->user_data((void*)(this));
         m_debuggingDisplayCheckButton->callback(cb_debuggingDisplayCheckButton);
         m_debuggingDisplayCheckButton->value(m_displayDebuggingInfo);

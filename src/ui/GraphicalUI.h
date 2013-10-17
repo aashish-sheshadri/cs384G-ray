@@ -43,6 +43,7 @@ public:
 
 	Fl_Check_Button*	m_debuggingDisplayCheckButton;
     Fl_Check_Button*    m_surfaceHeuristicButton;
+    Fl_Check_Button*    m_adaptiveSamplingButton;
     Fl_Group*           m_heuristicGroup;
 
 	Fl_Button*			m_renderButton;
@@ -83,6 +84,7 @@ private:
     static void cb_jitterSamplingRadioButton(Fl_Widget* o, void* v);
     static void cb_uniformSamplingRadioButton(Fl_Widget* o, void* v);
     static void cb_heuristicCheckButton(Fl_Widget* o, void* v);
+    static void cb_adaptiveSamplingCheckButton(Fl_Widget* o, void* v);
 
 	static bool doneTrace;		// Flag that gets set when the trace is done
 	static bool stopTrace;		// Flag that gets set when the trace should be stopped

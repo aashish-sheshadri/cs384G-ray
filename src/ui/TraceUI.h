@@ -57,6 +57,7 @@ protected:
     bool        m_bJitter;
     bool        m_bUniform;
     bool        m_bSurfaceHeuristic;
+    bool        m_bAdaptiveSampling;
 
 	// Determines whether or not to show debugging information
 	// for individual rays.  Disabled by default for efficiency
