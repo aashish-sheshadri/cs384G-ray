@@ -32,6 +32,7 @@ private:
     double _splittingPlaneDist;
     BoundingBox _box;
     std::vector<object_pointer> _objects;
+    double _surfaceArea;
 public:
     const Vec3d& getSplittingPlaneNormal(){
         return _splittingPlaneNormal;}
@@ -42,7 +43,8 @@ public:
         _negativeHalf(NULL),
         _splittingPlaneNormal(Vec3d(0.0f,0.0f,0.0f)),
         _splittingPlaneDist(0.0f),
-        _box(BoundingBox()){}
+        _box(BoundingBox()),
+       _surfaceArea(0.0f){}
 
     ~Node(){
         if(_positiveHalf!=NULL)
@@ -63,7 +65,9 @@ public:
         return _box;}
 
     void addObject(object_pointer obj){
-        this->_box.merge(obj->getBoundingBox());
+        BoundingBox box = obj->getBoundingBox();
+        this->_box.merge(box);
+        this->_surfaceArea+=box.area();
         _objects.push_back(obj);}
 
     double getArea(object_pointer obj){
@@ -74,12 +78,7 @@ public:
         return _box.area();}
 
     double getObjectsArea(){
-        double toReturn = 0.0f;
-        for(iterator it = _objects.begin(); it!=_objects.end(); ++it){
-            assert(!((*it)->getBoundingBox().isEmpty()));
-            BoundingBox tempBox = (*it)->getBoundingBox();
-            toReturn += tempBox.area();}
-        return toReturn;}
+        return _surfaceArea;}
 
     iterator getBeginIterator(){
         return _objects.begin();}
@@ -106,12 +105,13 @@ private:
     int _depth;
     int _minObjs;
     node_pointer _root;
-    double computeH(Node<object_data_type>* node, int dim, double& bestD){
+
+
+    double computeHMedian(Node<object_data_type>* node, int dim, double& bestD){
         typedef std::pair<double, typename Node<object_data_type>::iterator > internalType;
         if(!node->hasObjects()){
             return -1.0f;}
-        double totalArea = node->getBoxArea();
-        double min = 1.0e308; // 1.0e308 is close to infinity... close enough for us!
+        double h; // 1.0e308 is close to infinity... close enough for us!
         std::vector<std::pair<double, typename Node<object_data_type>::iterator> > objDistancePairs;
         objDistancePairs.reserve(2*node->getNumObjects());
 
@@ -123,10 +123,43 @@ private:
             objDistancePairs.push_back(std::make_pair(d1,it));
             objDistancePairs.push_back(std::make_pair(d2,it));}
 
-
-
         std::sort(objDistancePairs.begin(), objDistancePairs.end(), ComparePair<internalType>());
+        unsigned int idx = objDistancePairs.size()/2;
+        bestD = objDistancePairs[idx].first;
 
+        int negHalf = 0, posHalf = 0;
+
+        for(typename Node<object_data_type>::iterator it = node->getBeginIterator(); it!=node->getEndIterator(); ++it){
+            assert(!((*it)->getBoundingBox().isEmpty()));
+            double d1;
+            double d2;
+            (*it)->getBoundingBox().getPlaneNormsDists(dim, d1, d2);
+            if(bestD>=d2){
+                ++negHalf;
+            } else if(bestD<=d1){
+                ++posHalf;
+            } else {
+                ++negHalf;
+                ++posHalf;}}
+        h = -1*std::max((double)(posHalf/(double)(negHalf+posHalf)),((double)negHalf/(double)(negHalf+posHalf)));
+        return h;}
+
+    double computeH(Node<object_data_type>* node, int dim, double& bestD){
+        typedef std::pair<double, typename Node<object_data_type>::iterator > internalType;
+        if(!node->hasObjects()){
+            return -1.0f;}
+        double totalArea = node->getBoxArea();
+        double min = 1.0e308; // 1.0e308 is close to infinity... close enough for us!
+        std::vector<std::pair<double, typename Node<object_data_type>::iterator> > objDistancePairs;
+        objDistancePairs.reserve(2*node->getNumObjects());
+
+        for(typename Node<object_data_type>::iterator it = node->getBeginIterator(); it!=node->getEndIterator(); ++it){
+            double d1;
+            double d2;
+            (*it)->getBoundingBox().getPlaneNormsDists(dim, d1, d2);
+            objDistancePairs.push_back(std::make_pair(d1,it));
+            objDistancePairs.push_back(std::make_pair(d2,it));}
+        std::sort(objDistancePairs.begin(), objDistancePairs.end(), ComparePair<internalType>());
 
         std::set<typename Node<object_data_type>::iterator> transientSet;
         int negCounter = 0, posCounter = node->getNumObjects();
@@ -152,7 +185,8 @@ private:
                     double tempArea = node->getArea(*((*(prevIt)).second));
                     negativeArea+=tempArea;
                     ++negCounter;}
-                assert((transientSet.insert((*it).second)).second);}
+                transientSet.insert((*it).second);}
+
             negP = (double)negativeArea/(double)totalArea;
             posP = (double)positiveArea/(double)totalArea;
             hValue = _tt + posP*posCounter*_ti + negP*negCounter*_ti;
@@ -160,7 +194,6 @@ private:
                 min = hValue;
                 bestD = (*it).first;}
             prevIt = it;}
-        bestD;
         return min;}
 
     node_pointer splitNode(node_pointer node, int depth, int minObjs){
@@ -176,6 +209,9 @@ private:
         double xH = computeH(node,0,xD);
         double yH = computeH(node,1,yD);
         double zH = computeH(node,2,zD);
+//        double xH = computeHMedian(node,0,xD);
+//        double yH = computeHMedian(node,1,yD);
+//        double zH = computeHMedian(node,2,zD);
         node->setPlaneDist(xD);
         node->setPlaneNormal(Vec3d(1.0f,0.0f,0.0f));
         int dim = 0;
@@ -208,11 +244,8 @@ private:
                 positiveNode->addObject(*it);}
             ++it;}
         //*improve* add objects inline
-
         node->_positiveHalf = splitNode(positiveNode, depth - 1, minObjs);
-
         node->_negativeHalf = splitNode(negativeNode, depth - 1, minObjs);
-
         return node;}
 
     struct stackElement{
@@ -224,7 +257,7 @@ private:
         double tMin;
         double tMax;};
 public:
-    KdTree(double ti = 1, double tt = 80, int depth = 50, int minObjs = 10):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
+    KdTree(double ti = 1, double tt = 80, int depth = 15, int minObjs = 3):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
 
     ~KdTree(){
         deleteTree();}
