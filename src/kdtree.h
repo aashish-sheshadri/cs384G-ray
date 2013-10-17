@@ -206,12 +206,12 @@ private:
         double xD = 0.0f;
         double yD = 0.0f;
         double zD = 0.0f;
-        double xH = computeH(node,0,xD);
-        double yH = computeH(node,1,yD);
-        double zH = computeH(node,2,zD);
-//        double xH = computeHMedian(node,0,xD);
-//        double yH = computeHMedian(node,1,yD);
-//        double zH = computeHMedian(node,2,zD);
+//        double xH = computeH(node,0,xD);
+//        double yH = computeH(node,1,yD);
+//        double zH = computeH(node,2,zD);
+        double xH = computeHMedian(node,0,xD);
+        double yH = computeHMedian(node,1,yD);
+        double zH = computeHMedian(node,2,zD);
         node->setPlaneDist(xD);
         node->setPlaneNormal(Vec3d(1.0f,0.0f,0.0f));
         int dim = 0;
@@ -249,10 +249,7 @@ private:
         return node;}
 
     struct stackElement{
-        stackElement(){
-            node = NULL;
-            tMin = 1.0e308;
-            tMax = -1.0e308;}
+        stackElement():node(NULL),tmin(1.0e308),tMax(-1.0e308){}
         node_pointer node;
         double tMin;
         double tMax;};
@@ -314,6 +311,7 @@ public:
                         tPlane = parent->getSplittingPlaneDist() - r.getPosition()[2];
                         tPlane /= (double)r.getDirection()[2];
                         dimensionOfSplit = 2;
+
                     }
 
                     if(tPlane >= 0){
