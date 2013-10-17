@@ -9,6 +9,9 @@
 #include <set>
 #include <stack>
 //#include "scene/ray.h"
+#include "ui/TraceUI.h"
+
+extern TraceUI* traceUI;
 
 template<typename T>
 struct ComparePair{
@@ -206,12 +209,16 @@ private:
         double xD = 0.0f;
         double yD = 0.0f;
         double zD = 0.0f;
-        double xH = computeH(node,0,xD);
-        double yH = computeH(node,1,yD);
-        double zH = computeH(node,2,zD);
-//        double xH = computeHMedian(node,0,xD);
-//        double yH = computeHMedian(node,1,yD);
-//        double zH = computeHMedian(node,2,zD);
+        double xH = 0.0f, yH = 0.0f, zH = 0.0f;
+        if(traceUI->useSurface()){
+             xH = computeH(node,0,xD);
+             yH = computeH(node,1,yD);
+             zH = computeH(node,2,zD);
+        } else {
+             xH = computeHMedian(node,0,xD);
+             yH = computeHMedian(node,1,yD);
+             zH = computeHMedian(node,2,zD);
+        }
         node->setPlaneDist(xD);
         node->setPlaneNormal(Vec3d(1.0f,0.0f,0.0f));
         int dim = 0;

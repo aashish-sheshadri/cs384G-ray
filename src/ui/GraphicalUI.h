@@ -14,6 +14,7 @@
 #include <FL/Fl_Check_Button.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Round_Button.H>
+#include <FL/Fl_Box.H>
 
 #include <FL/Fl_File_Chooser.H>		// FLTK file chooser
 
@@ -34,12 +35,15 @@ public:
 	// The FLTK widgets
 	Fl_Window*			m_mainWindow;
 	Fl_Menu_Bar*		m_menubar;
+    Fl_Box*           m_lineLabel;
 
 	Fl_Slider*			m_sizeSlider;
 	Fl_Slider*			m_depthSlider;
     Fl_Slider*			m_sampleSizeSlider;
 
 	Fl_Check_Button*	m_debuggingDisplayCheckButton;
+    Fl_Check_Button*    m_surfaceHeuristicButton;
+    Fl_Group*           m_heuristicGroup;
 
 	Fl_Button*			m_renderButton;
 	Fl_Button*			m_stopButton;
@@ -78,6 +82,7 @@ private:
     static void cb_accelerateCheckButton(Fl_Widget* o, void* v);
     static void cb_jitterSamplingRadioButton(Fl_Widget* o, void* v);
     static void cb_uniformSamplingRadioButton(Fl_Widget* o, void* v);
+    static void cb_heuristicCheckButton(Fl_Widget* o, void* v);
 
 	static bool doneTrace;		// Flag that gets set when the trace is done
 	static bool stopTrace;		// Flag that gets set when the trace should be stopped

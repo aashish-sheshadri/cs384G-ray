@@ -43,6 +43,7 @@ public:
     bool    acceleration() const { return m_accelerate; }
     bool    jitter() const { return m_bJitter; }
     bool    uniform() const { return m_bUniform; }
+    bool    useSurface() const { return m_bSurfaceHeuristic; }
     int     getSampleSize() const { return m_nSampleSize; }
 
 
@@ -55,6 +56,7 @@ protected:
     int         m_nSampleSize;          // super sample size
     bool        m_bJitter;
     bool        m_bUniform;
+    bool        m_bSurfaceHeuristic;
 
 	// Determines whether or not to show debugging information
 	// for individual rays.  Disabled by default for efficiency

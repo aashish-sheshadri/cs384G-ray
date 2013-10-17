@@ -123,6 +123,8 @@ void GraphicalUI::cb_uniformSamplingRadioButton(Fl_Widget* o, void* v)
     ((GraphicalUI*)(o->user_data()))->m_bUniform= true ;
 }
 
+
+
 void GraphicalUI::cb_sampleSizeSlides(Fl_Widget* o, void* v)
 {
     ((GraphicalUI*)(o->user_data()))->m_nSampleSize=int( ((Fl_Slider *)o)->value() ) ;
@@ -136,6 +138,12 @@ void GraphicalUI::cb_debuggingDisplayCheckButton(Fl_Widget* o, void* v)
 		pUI->m_debuggingWindow->show();
 	else
 		pUI->m_debuggingWindow->hide();
+}
+
+void GraphicalUI::cb_heuristicCheckButton(Fl_Widget* o, void* v)
+{
+    GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
+    pUI->m_bSurfaceHeuristic = (((Fl_Check_Button*)o)->value() == 1);
 }
 
 void GraphicalUI::cb_accelerateCheckButton(Fl_Widget* o, void* v)
@@ -335,13 +343,20 @@ GraphicalUI::GraphicalUI() {
         m_jitterSamplingButton->callback(cb_uniformSamplingRadioButton);
         m_jitterSamplingButton->type(FL_RADIO_BUTTON);
 
+        m_lineLabel = new Fl_Box (0,170,300,20,"Tree is built when scene is loaded!!");
+        // set up heuristic checkbox
+        m_bSurfaceHeuristic = true;
+        m_surfaceHeuristicButton = new Fl_Check_Button(0, 200, 180, 20, "Surface or Median Heuristic? X for SAH");
+        m_surfaceHeuristicButton->user_data((void*)(this));
+        m_surfaceHeuristicButton->callback(cb_heuristicCheckButton);
+        m_surfaceHeuristicButton->set();
 
         // set up acceleration checkbox
-        m_accelerate = false;
-        m_accelerateCheckButton = new Fl_Check_Button(0, 250, 180, 20, "Accelerate");
+        m_accelerate = true;
+        m_accelerateCheckButton = new Fl_Check_Button(0, 230, 180, 20, "Accelerate");
         m_accelerateCheckButton->user_data((void*)(this));
         m_accelerateCheckButton->callback(cb_accelerateCheckButton);
-        m_accelerateCheckButton->value(m_accelerate);
+        m_accelerateCheckButton->set();
 
 		// set up debugging display checkbox
         m_debuggingDisplayCheckButton = new Fl_Check_Button(0, 280, 180, 20, "Debugging display");

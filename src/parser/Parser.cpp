@@ -9,7 +9,9 @@
 #include "Tokenizer.h"
 #include "../scene/scene.h"
 #include "../scene/material.h"
+#include "../ui/TraceUI.h"
 
+extern TraceUI* traceUI;
 using namespace std;
 
 template< typename T >
@@ -675,7 +677,9 @@ void Parser::parseTrimesh(Scene* scene, TransformNode* transform, const Material
 
         if( error = tmesh->doubleCheck() )
           throw ParserException( error );
-        tmesh->constructKDTree();
+        if(traceUI->acceleration()){
+            tmesh->constructKDTree();
+        }
         scene->add( tmesh );
         return;
       }

@@ -32,7 +32,7 @@ CommandLineUI::CommandLineUI( int argc, char** argv )
 	int i;
 
 	progName=argv[0];
-    m_accelerate = false;
+    m_accelerate = true;
     m_nSampleSize = 1;
     while( (i = getopt( argc, argv, "tr:w:h:s:auj" )) != EOF )
 	{
