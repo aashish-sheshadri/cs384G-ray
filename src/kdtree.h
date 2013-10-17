@@ -231,6 +231,7 @@ private:
             dMin = zD;}
 
         typename Node<object_data_type>::iterator it = node->getBeginIterator();
+
         while(it!=node->getEndIterator()){
             double d1;
             double d2;
@@ -252,7 +253,7 @@ private:
         node_pointer node;
         double tMin;
         double tMax;
-        stackElement():node(NULL),tMin(1.0e308),tMax(-1.0e308){}};
+        stackElement(node_pointer n=NULL, double tmin=1.0e308, double tmax=-1.0e308):node(n),tMin(tmin),tMax(tmax){}};
 public:
     KdTree(double ti = 1, double tt = 80, int depth = 15, int minObjs = 3):_root(NULL),_ti(ti), _tt(tt),_depth(depth),_minObjs(minObjs){}
 
@@ -310,9 +311,7 @@ public:
                     } else if(parent->getSplittingPlaneNormal()[2] == 1){
                         tPlane = parent->getSplittingPlaneDist() - r.getPosition()[2];
                         tPlane /= (double)r.getDirection()[2];
-                        dimensionOfSplit = 2;
-
-                    }
+                        dimensionOfSplit = 2;}
 
                     if(tPlane >= 0){
                         if(r.getDirection()[dimensionOfSplit] > 0){
@@ -320,27 +319,21 @@ public:
                             farChild = parent->_positiveHalf;
                         } else {
                             nearChild = parent->_positiveHalf;
-                            farChild = parent->_negativeHalf;
-                        }
+                            farChild = parent->_negativeHalf;}
                     } else {
                         if(r.getDirection()[dimensionOfSplit] > 0){
                             nearChild = parent->_positiveHalf;
                             farChild = parent->_negativeHalf;
                         } else {
                             nearChild = parent->_negativeHalf;
-                            farChild = parent->_positiveHalf;
-                        }
-                    }
+                            farChild = parent->_positiveHalf;}}
 
                     if(tPlane >= tMax || tPlane <=0){
                         parent = nearChild;
                     } else if(tPlane <= tMin){
                         parent = farChild;
                     } else {
-                        stackElement tmp;
-                        tmp.node = farChild;
-                        tmp.tMin = tPlane;
-                        tmp.tMax = tMax;
+                        stackElement tmp(farChild,tPlane,tMax);
                         stack.push(tmp);
                         parent = nearChild;
                         tMax = tPlane;}}
@@ -349,14 +342,14 @@ public:
                 isect minIntersection;
                 bool haveOne = false;
                 typename Node<object_data_type>::iterator it = parent->getBeginIterator();
-
+                isect cur;
+                Vec3d pointOfintersect(0.0f,0.0f,0.0f);
                 while (it != parent->getEndIterator()){
                     //calculate intersection
                     //check if it exists in boundbox
                     //check vs closest point
-                    isect cur;
                     if( (*it)->intersect(r, cur )){
-                        Vec3d pointOfintersect = r.at(cur.t );
+                        pointOfintersect = r.at(cur.t );
                         if((*it)->getBoundingBox().intersects(pointOfintersect)){
                             if(!haveOne){
                                 minIntersection = cur;
@@ -370,8 +363,7 @@ public:
                     ++it;}
                 if(haveOne){
                     i = minIntersection;
-                    return true;
-                }}
+                    return true;}}
             return false;}};
 
 
