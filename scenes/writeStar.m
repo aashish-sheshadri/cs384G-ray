@@ -52,7 +52,7 @@ fprintf(fid,'%s\n',stringFaces);
 for i=1:length(outerX)
     fprintf(fid,'%s%u,%u,%u%s,\n','(',0,allPointsIdx(i),allPointsIdx(i+length(outerX)),')');
     fprintf(fid,'%s%u,%u,%u%s,\n','(',1,allPointsIdx(i),allPointsIdx(i+length(outerX)),')');
-    nextIdx = rem(i,length(outerX));
+    nextIdx = rem(i+1,length(outerX));
     if(nextIdx == 0)
         nextIdx = 1;
     end
