@@ -31,26 +31,26 @@ stringFaces = 'faces = (';
 
 fid = fopen('star.txt','w');
 fprintf(fid,'%s\n',stringPoints);
-fprintf(fid,'%s%5f,%5f,%5f,%s\n','(',centerUp(1),centerUp(2),centerUp(3),')');
-fprintf(fid,'%s%5f,%5f,%5f,%s\n','(',centerDown(1),centerDown(2),centerDown(3),')');
+fprintf(fid,'%s%5f,%5f,%5f%s,\n','(',centerUp(1),centerUp(2),centerUp(3),')');
+fprintf(fid,'%s%5f,%5f,%5f%s,\n','(',centerDown(1),centerDown(2),centerDown(3),')');
 for i=1:length(outerX)
-    fprintf(fid,'%s%5f,%5f,%5f,%s\n','(',outerX(i),outerY(i),outerZ(i),')');
+    fprintf(fid,'%s%5f,%5f,%5f%s,\n','(',outerX(i),outerY(i),outerZ(i),')');
 end
 for i=1:length(innerX)
-    fprintf(fid,'%s%5f,%5f,%5f,%s\n','(',innerX(i),innerY(i),innerZ(i),')');
+    fprintf(fid,'%s%5f,%5f,%5f%s,\n','(',innerX(i),innerY(i),innerZ(i),')');
 end
 fprintf(fid,'%s\n',');');
 fprintf(fid,'%s\n',stringFaces);
 
 for i=1:length(outerX)
-    fprintf(fid,'%s%u,%u,%u,%s\n','(',0,allPointsIdx(i),allPointsIdx(i+length(outerX)),')');
-    fprintf(fid,'%s%u,%u,%u,%s\n','(',1,allPointsIdx(i),allPointsIdx(i+length(outerX)),')');
+    fprintf(fid,'%s%u,%u,%u%s,\n','(',0,allPointsIdx(i),allPointsIdx(i+length(outerX)),')');
+    fprintf(fid,'%s%u,%u,%u%s,\n','(',1,allPointsIdx(i),allPointsIdx(i+length(outerX)),')');
     nextIdx = rem(i,length(outerX));
     if(nextIdx == 0)
         nextIdx = 1;
     end
-    fprintf(fid,'%s%u,%u,%u,%s\n','(',0,allPointsIdx(nextIdx),allPointsIdx(i+length(outerX)),')');
-    fprintf(fid,'%s%u,%u,%u,%s\n','(',1,allPointsIdx(nextIdx),allPointsIdx(i+length(outerX)),')');
+    fprintf(fid,'%s%u,%u,%u%s,\n','(',0,allPointsIdx(nextIdx),allPointsIdx(i+length(outerX)),')');
+    fprintf(fid,'%s%u,%u,%u%s,\n','(',1,allPointsIdx(nextIdx),allPointsIdx(i+length(outerX)),')');
 end
 fprintf(fid,'%s',');');
 fclose(fid);
