@@ -13,9 +13,16 @@ outerX = outerRad*cos(outerPoints);
 outerY = outerRad*sin(outerPoints);
 outerZ = zeros(1,length(outerX));
 
+outerX(end) = [];
+outerY(end) = [];
+outerZ(end) = [];
+
 innerX = innerRad*cos(innerPoints);
 innerY = innerRad*sin(innerPoints);
 innerZ = zeros(1,length(innerX));
+innerX(end) = [];
+innerY(end) = [];
+innerZ(end) = [];
 
 % scatter3(outerX,outerY,outerZ);
 % hold on;
@@ -24,7 +31,7 @@ innerZ = zeros(1,length(innerX));
 % scatter3(0,0,-height);
 
 allPointsIdx = 1:(length(outerX)+length(innerX)+2);
-allPointsIdx = allPointsIdx + 2;
+allPointsIdx = allPointsIdx + 1;
 
 stringPoints = 'points = (';
 stringFaces = 'faces = (';
