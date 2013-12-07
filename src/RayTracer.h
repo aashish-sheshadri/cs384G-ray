@@ -58,12 +58,6 @@ struct ZeroMean{
         T temp = val - _mean;
         return (temp*temp);}};
 
-template<typename T>
-struct SquareInPlace{
-    T operator()(T val){
-        val*=val;
-        return val;}};
-
 class Scene;
 class RayTracer
 {
