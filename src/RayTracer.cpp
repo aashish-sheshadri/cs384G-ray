@@ -275,10 +275,6 @@ void RayTracer::tracePixel( int i, int j )
 
             fillRandomIdx(allSamples.begin(),allSamples.end());
 
-//            for(std::vector<std::pair<double,double> >::iterator it = allSamples.begin();it!=allSamples.end();++it){
-//                std::cout<<(*it).first<<" "<<(*it).second<<"\t";}
-//            std::cout<<std::endl;
-
             int minSamples = 2;
             int numUsedSamples = 0;
             double runningSum = 0.0f;
@@ -294,7 +290,6 @@ void RayTracer::tracePixel( int i, int j )
                     std::vector<double> zeroMean(sampleIntensities);
                     ZeroMean<double> tempMeanObj(mean);
                     std::transform(zeroMean.begin(),zeroMean.end(),zeroMean.begin(),tempMeanObj);
-//                    std::transform(zeroMean.begin(),zeroMean.end(),zeroMean.begin(),SquareInPlace<double>());
                     double varSum = std::accumulate(zeroMean.begin(),zeroMean.end(), 0.0f);
                     varSum = sqrt(varSum/(double)(numUsedSamples-1));
                     if(varSum < varThresh)
