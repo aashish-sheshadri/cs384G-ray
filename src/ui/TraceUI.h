@@ -45,7 +45,7 @@ public:
     bool    uniform() const { return m_bUniform; }
     bool    useSurface() const { return m_bSurfaceHeuristic; }
     int     getSampleSize() const { return m_nSampleSize; }
-
+    bool    getAdapativeSampling() const { return m_bAdaptiveSampling;}
 
 protected:
 	RayTracer*	raytracer;

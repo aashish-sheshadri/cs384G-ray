@@ -366,7 +366,7 @@ GraphicalUI::GraphicalUI() {
         m_bAdaptiveSampling = true;
         m_adaptiveSamplingButton = new Fl_Check_Button(0, 260, 180, 20, "Adaptive Sampling");
         m_adaptiveSamplingButton->user_data((void*)(this));
-        m_adaptiveSamplingButton->callback(cb_accelerateCheckButton);
+        m_adaptiveSamplingButton->callback(cb_adaptiveSamplingCheckButton);
         m_adaptiveSamplingButton->set();
 
 		// set up debugging display checkbox

@@ -233,6 +233,7 @@ void RayTracer::traceSetup( int w, int h )
 
 void RayTracer::tracePixel( int i, int j )
 {
+    double varThresh = 0.001f;
     Vec3d col(0.0f,0.0f,0.0f);
 	if( ! sceneLoaded() )
 		return;
@@ -261,11 +262,50 @@ void RayTracer::tracePixel( int i, int j )
             std::transform(xVec.begin(), xVec.end(), xVec.begin(), jitter);
             std::transform(yVec.begin(), yVec.end(), yVec.begin(), jitter);}
 
-        for (std::vector<double>::iterator itX = xVec.begin();itX!=xVec.end();++itX){
-            for(std::vector<double>::iterator itY = yVec.begin();itY!=yVec.end();++itY){
-                col+= trace(*itX/double(buffer_width),*itY/double(buffer_height));}}
+        if(traceUI->getAdapativeSampling()){
+            int totalSamples = numSamples*numSamples;
+            std::vector<std::pair<double,double> > allSamples;
+            allSamples.reserve(totalSamples);
+            for (std::vector<double>::iterator itX = xVec.begin();itX!=xVec.end();++itX){
+                for(std::vector<double>::iterator itY = yVec.begin();itY!=yVec.end();++itY){
+                    allSamples.push_back(std::make_pair(*itX,*itY));}}
 
-        col/=(numSamples*numSamples);
+            std::vector<double> sampleIntensities;
+            sampleIntensities.reserve(totalSamples);
+
+            fillRandomIdx(allSamples.begin(),allSamples.end());
+
+//            for(std::vector<std::pair<double,double> >::iterator it = allSamples.begin();it!=allSamples.end();++it){
+//                std::cout<<(*it).first<<" "<<(*it).second<<"\t";}
+//            std::cout<<std::endl;
+
+            int minSamples = 2;
+            int numUsedSamples = 0;
+            double runningSum = 0.0f;
+            for(std::vector<std::pair<double,double> >::iterator it = allSamples.begin();it!=allSamples.end();++it){
+                ++numUsedSamples;
+                Vec3d tempIntensity = trace((*it).first/double(buffer_width),(*it).second/double(buffer_height));
+                double avgIntensity = (tempIntensity[0] + tempIntensity[1] + tempIntensity[2])/3.0f;
+                col = col + tempIntensity;
+                runningSum += avgIntensity;
+                sampleIntensities.push_back(avgIntensity);
+                if(minSamples<0){
+                    double mean = runningSum/(double)numUsedSamples;
+                    std::vector<double> zeroMean(sampleIntensities);
+                    ZeroMean<double> tempMeanObj(mean);
+                    std::transform(zeroMean.begin(),zeroMean.end(),zeroMean.begin(),tempMeanObj);
+//                    std::transform(zeroMean.begin(),zeroMean.end(),zeroMean.begin(),SquareInPlace<double>());
+                    double varSum = std::accumulate(zeroMean.begin(),zeroMean.end(), 0.0f);
+                    varSum = sqrt(varSum/(double)(numUsedSamples-1));
+                    if(varSum < varThresh)
+                        break;}
+                --minSamples;}
+            col = col/numUsedSamples;
+        } else {
+            for(std::vector<double>::iterator itX = xVec.begin();itX!=xVec.end();++itX){
+                for(std::vector<double>::iterator itY = yVec.begin();itY!=yVec.end();++itY){
+                    col+= trace(*itX/double(buffer_width),*itY/double(buffer_height));}}
+            col/=(numSamples*numSamples);}
     } else {
         col = trace(x,y);}
 
