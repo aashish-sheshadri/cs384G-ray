@@ -205,7 +205,7 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
                 }
 				pUI->raytracer->tracePixel( x, y );
 				pUI->m_debuggingWindow->m_debuggingView->setDirty();
-			}
+            }
 			if (stopTrace) break;
 
 			// refresh at end of row
@@ -221,6 +221,22 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
 			pUI->m_traceGlWindow->label(buffer);
 			
 		}
+        if(!stopTrace){
+            pUI->m_traceGlWindow->refresh();
+            Fl::check();
+
+            if (Fl::damage()) {
+                Fl::flush();
+            }
+            pUI->raytracer->drawEdges();
+            pUI->m_traceGlWindow->refresh();
+            Fl::check();
+
+            if (Fl::damage()) {
+                Fl::flush();
+            }
+            pUI->m_traceGlWindow->label(buffer);}
+
 		doneTrace=true;
 		stopTrace=false;
 
