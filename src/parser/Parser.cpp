@@ -997,6 +997,10 @@ Material* Parser::parseMaterial( Scene* scene, const Material& parent )
     const Token* token = _tokenizer.Peek();
     switch( token->kind() )
     {
+      case BUMP_MAPPING:
+        mat->setBumpMapping( parseVec3dMaterialParameter(scene) );
+        break;
+
       case EMISSIVE:
         mat->setEmissive( parseVec3dMaterialParameter(scene) );
         break;
@@ -1076,6 +1080,15 @@ MaterialParameter Parser::parseVec3dMaterialParameter( Scene* scene )
     _tokenizer.Read( RPAREN );
     _tokenizer.CondRead(SEMICOLON);
     return MaterialParameter( scene->getTexture( filename ) );
+  } else if( _tokenizer.CondRead( BUMP ) )
+  {
+    _tokenizer.Read( LPAREN );
+    string filename = _basePath;
+    filename.append( "/" );
+    filename.append(parseIdent());
+    _tokenizer.Read( RPAREN );
+    _tokenizer.CondRead(SEMICOLON);
+    return MaterialParameter( scene->getBump( filename ) );
   }
   else
   {

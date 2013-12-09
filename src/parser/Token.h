@@ -81,7 +81,10 @@ enum SYMBOL {
   DIFFUSE, TRANSMISSIVE,
   SHININESS, INDEX,
   NAME,
-  MAP
+  MAP,
+
+  BUMP_MAPPING,
+  BUMP
 };
 
 // Helper functions

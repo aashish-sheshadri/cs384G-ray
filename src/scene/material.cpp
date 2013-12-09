@@ -60,17 +60,25 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
                 //Vec3d specularIntensity = ks(i) * pLight->getColor(intersectionPoint);
                 shadowLight %= diffuseIntensity; //+ specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));
             } else {
+                if(!bump(i)[0]!= 2.0f){
+                    Vec3d perturbed = 2.0f*bump(i)-1.0f;
+                    perturbed.normalize();
+                    aLightToNormal = perturbed * lightDirection;
+                }
                 Vec3d diffuseIntensity = kd(i);
                 Vec3d specularIntensity = ks(i);
                 diffuseIntensity%=pLight->getColor(intersectionPoint);
                 specularIntensity%=pLight->getColor(intersectionPoint);
                 shadowLight = pLight->shadowAttenuation(intersectionPoint);
-                shadowLight %= (diffuseIntensity * std::max(aLightToNormal,0.0) + specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));}
-            intensity += pLight->distanceAttenuation(intersectionPoint)*shadowLight;}
+                shadowLight %= (diffuseIntensity * std::max(aLightToNormal, 0.0) + specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));
+            }
+            intensity += shadowLight*pLight->distanceAttenuation(intersectionPoint);
+    }
     if(bNonRealism)
         return intensity;
     else
-        return intensity + emmisiveIntensity + ambientIntensity;}
+        return intensity + emmisiveIntensity + ambientIntensity;
+}
 
 TextureMap::TextureMap( string filename ) {
 
@@ -107,6 +115,41 @@ TextureMap::TextureMap( string filename ) {
 	}
 }
 
+BumpMap::BumpMap( string filename ) {
+
+    int start = filename.find_last_of('.');
+    int end = filename.size() - 1;
+    if (start >= 0 && start < end) {
+        string ext = filename.substr(start, end);
+        if (!ext.compare(".png")) {
+            png_cleanup(1);
+            if (!png_init(filename.c_str(), width, height)) {
+                double gamma = 2.2;
+                int channels, rowBytes;
+                unsigned char* indata = png_get_image(gamma, channels, rowBytes);
+                int bufsize = rowBytes * height;
+                data = new unsigned char[bufsize];
+                for (int j = 0; j < height; j++)
+                    for (int i = 0; i < rowBytes; i += channels)
+                        for (int k = 0; k < channels; k++)
+                            *(data + k + i + j * rowBytes) = *(indata + k + i + (height - j - 1) * rowBytes);
+                png_cleanup(1);
+            }
+        }
+        else
+            if (!ext.compare(".bmp")) data = readBMP(filename.c_str(), width, height);
+            else data = NULL;
+    } else data = NULL;
+    if (data == NULL) {
+        width = 0;
+        height = 0;
+        string error("Unable to load texture map '");
+        error.append(filename);
+        error.append("'.");
+        throw TextureMapException(error);
+    }
+}
+
 Vec3d TextureMap::getMappedValue( const Vec2d& coord ) const
 {
 	// YOUR CODE HERE
@@ -118,16 +161,33 @@ Vec3d TextureMap::getMappedValue( const Vec2d& coord ) const
     // [0, 1] x [0, 1] in 2-space to bitmap coordinates,
     // and use these to perform bilinear interpolation
     // of the values.
+    //return Vec3d(1.0, 1.0, 1.0);
 
     float xCor = coord[0] * width,
-               yCor = coord[1] * height;
-       int lowXindex = (int)xCor;
-       int lowYindex = (int)yCor;
-       float deltaX = xCor - lowXindex, deltaY = yCor - lowYindex;
-       float a = (1-deltaX)*(1-deltaY), b = (deltaX)*(1-deltaY), c = (1-deltaX)*deltaY, d = deltaX*deltaY;
-       return a*getPixelAt(lowXindex,lowYindex) + b*getPixelAt(lowXindex+1,lowYindex) + c*getPixelAt(lowXindex,lowYindex+1) + d*getPixelAt(lowXindex+1,lowYindex+1);
+    yCor = coord[1] * height;
+    int lowXindex = (int)xCor;
+    int lowYindex = (int)yCor;
+    float deltaX = xCor - lowXindex, deltaY = yCor - lowYindex;
+    float a = (1-deltaX)*(1-deltaY), b = (deltaX)*(1-deltaY), c = (1-deltaX)*deltaY, d = deltaX*deltaY;
+    return a*getPixelAt(lowXindex,lowYindex) + b*getPixelAt(lowXindex+1,lowYindex) + c*getPixelAt(lowXindex,lowYindex+1) + d*getPixelAt(lowXindex+1,lowYindex+1);
 
-    return Vec3d(1.0, 1.0, 1.0);
+}
+
+Vec3d BumpMap::getDiffValue( const Vec2d& coord ) const
+{
+    float xCor = coord[0] * width,
+    yCor = coord[1] * height;
+    int x = (int)xCor, y = (int)yCor;
+    int right = (int)x + 1;
+    int top = (int)y + 1;
+    Vec3d diffX = getPixelAt(x,y) - getPixelAt(right, y);
+    double avgX = (diffX[0]+diffX[1]+diffX[2])/(double)3.0f;
+    Vec3d diffY = getPixelAt(x,y) - getPixelAt(x, top);
+    double avgY = (diffY[0]+diffY[1]+diffY[2])/(double)3.0f;
+    //float deltaX = xCor - lowXindex, deltaY = yCor - lowYindex;
+    Vec3d perturb(avgX, avgY, 1);
+    perturb.normalize();
+    return perturb;
 
 }
 
@@ -146,7 +206,26 @@ Vec3d TextureMap::getPixelAt( int x, int y ) const
 
     // Find the position in the big data array...
     int pos = (y * width + x) * 3;
-    return Vec3d( double(data[pos]) / 255.0, 
+    return Vec3d( double(data[pos]) / 255.0,
+       double(data[pos+1]) / 255.0,
+       double(data[pos+2]) / 255.0 );
+}
+
+Vec3d BumpMap::getPixelAt( int x, int y ) const
+{
+    // This keeps it from crashing if it can't load
+    // the texture, but the person tries to render anyway.
+    if (0 == data)
+      return Vec3d(1.0, 1.0, 1.0);
+
+    if( x >= width )
+       x = width - 1;
+    if( y >= height )
+       y = height - 1;
+
+    // Find the position in the big data array...
+    int pos = (y * width + x) * 3;
+    return Vec3d( double(data[pos]) / 255.0,
        double(data[pos+1]) / 255.0,
        double(data[pos+2]) / 255.0 );
 }
@@ -157,6 +236,14 @@ Vec3d MaterialParameter::value( const isect& is ) const
         return _textureMap->getMappedValue( is.uvCoordinates );
     else
         return _value;
+}
+
+Vec3d MaterialParameter::valueTMP( const isect& is ) const
+{
+    if( 0 != _bumpMap )
+        return _bumpMap->getDiffValue( is.uvCoordinates );
+    else
+        return Vec3d(2.0f,2.0f,2.0f);
 }
 
 double MaterialParameter::intensityValue( const isect& is ) const

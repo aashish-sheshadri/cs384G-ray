@@ -248,6 +248,8 @@ public:
 	// in the Scene.  This makes sure they get deleted when the scene
 	// is destroyed.
 	TextureMap* getTexture( string name );
+    BumpMap* getBump( string name );
+
 
 	// These two functions are for handling ambient light; in the Phong model,
 	// the "ambient" light is considered a property of the _scene_ as a whole
@@ -271,7 +273,9 @@ private:
 	Vec3d ambientIntensity;
 
 	typedef std::map< std::string, TextureMap* > tmap;
+    typedef std::map< std::string, BumpMap* > bmap;
 	tmap textureCache;
+    bmap bumpCache;
 
 	// Each object in the scene, provided that it has hasBoundingBoxCapability(),
 	// must fall within this bounding box.  Objects that don't have hasBoundingBoxCapability()

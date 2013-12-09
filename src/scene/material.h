@@ -49,6 +49,32 @@ class TextureMap
        unsigned char* data;
 };
 
+class BumpMap
+{
+    public:
+       BumpMap( string filename );
+
+       // Return the mapped value; here the coordinate
+       // is assumed to be within the parametrization space:
+       // [0, 1] x [0, 1]
+       // (i.e., {(u, v): 0 <= u <= 1 and 0 <= v <= 1}
+       Vec3d getDiffValue( const Vec2d& coord ) const;
+       ~BumpMap()
+         { delete data; }
+
+    private:
+       // Retrieve the value stored in a physical location
+       // (with integer coordinates) in the bitmap.
+       // Should be called from getMappedValue in order to
+       // do bilinear interpolation.
+       Vec3d getPixelAt( int x, int y ) const;
+
+       string filename;
+       int width;
+       int height;
+       unsigned char* data;
+};
+
 class TextureMapException
 {
 	public:
@@ -79,19 +105,26 @@ class MaterialParameter
 {
 public:
     explicit MaterialParameter( const Vec3d& par )
-      : _value( par ), _textureMap( 0 )
+      : _value( par ), _textureMap( 0 ), _bumpMap( 0 )
     { }
 
     explicit MaterialParameter( const double par )
-      : _value( par, par, par ), _textureMap( 0 )
+        : _value( par, par, par ), _textureMap( 0 ), _bumpMap( 0 )
     { }
 
     explicit MaterialParameter( TextureMap* tex )
-       : _textureMap( tex )
+       : _textureMap( tex ), _bumpMap( 0 )
     { }
 
+    explicit MaterialParameter( BumpMap* tex )
+        : _bumpMap( tex ), _textureMap( 0 )
+    { }
+
+    explicit MaterialParameter( TextureMap* tex, BumpMap* bex )
+        : _bumpMap( bex ), _textureMap( tex )
+    { }
     MaterialParameter()
-       : _value( 0.0, 0.0, 0.0 ), _textureMap( 0 )
+       : _value( 0.0, 0.0, 0.0 ), _textureMap( 0 ), _bumpMap( 0 )
     { }
 
     MaterialParameter& operator*=( const MaterialParameter& rhs )
@@ -126,6 +159,7 @@ public:
     {
       _value = rhs;
       _textureMap = 0;
+      _bumpMap = 0;
     }
 
     void setValue( const double rhs )
@@ -134,6 +168,7 @@ public:
       _value[1] = rhs;
       _value[2] = rhs;
       _textureMap = 0;
+      _bumpMap = 0;
     }
 
     Vec3d& operator+=( const Vec3d& rhs )
@@ -143,6 +178,7 @@ public:
     }
 
     Vec3d value( const isect& is ) const;
+    Vec3d valueTMP( const isect& is ) const;
     double intensityValue( const isect& is ) const;
 
 	// Use this to determine if the particular parameter is
@@ -152,6 +188,7 @@ public:
 private:
     Vec3d _value;
     TextureMap* _textureMap;
+    BumpMap* _bumpMap;
 };
 
 class Material
@@ -203,6 +240,7 @@ public:
     Vec3d kd( const isect& i ) const { return _kd.value(i); }
     Vec3d kr( const isect& i ) const { return _kr.value(i); }
     Vec3d kt( const isect& i ) const { return _kt.value(i); }
+    Vec3d bump( const isect& i ) const { return _bump.valueTMP(i); }
     double shininess( const isect& i ) const
 	{
 		// Have to renormalize into the range 0-128 if it's texture mapped.
@@ -235,7 +273,7 @@ public:
     void setShininess( const MaterialParameter& shininess )    
                                                                { _shininess = shininess; }
     void setIndex( const MaterialParameter& index )            { _index = index; }
-
+    void setBumpMapping( const MaterialParameter& bump )             { _bump = bump; }
 private:
     MaterialParameter _ke;                    // emissive
     MaterialParameter _ka;                    // ambient
@@ -243,6 +281,8 @@ private:
     MaterialParameter _kd;                    // diffuse
     MaterialParameter _kr;                    // reflective
     MaterialParameter _kt;                    // transmissive
+
+    MaterialParameter _bump;                    // bump mapping
     
     MaterialParameter _shininess;
     MaterialParameter _index;                 // index of refraction

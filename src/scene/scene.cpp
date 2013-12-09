@@ -74,9 +74,16 @@ bool Scene::intersect( const ray& r, isect& i ) const {
 TextureMap* Scene::getTexture( string name ) {
 	tmap::const_iterator itr = textureCache.find( name );
 	if( itr == textureCache.end() ) {
-		textureCache[ name ] = new TextureMap( name );
+        textureCache[ name ] = new TextureMap( name );
 		return textureCache[ name ];
 	} else return (*itr).second;
 }
 
+BumpMap* Scene::getBump( string name ) {
+    bmap::const_iterator itr = bumpCache.find( name );
+    if( itr == bumpCache.end() ) {
+        bumpCache[ name ] = new BumpMap( name );
+        return bumpCache[ name ];
+    } else return (*itr).second;
+}
 
