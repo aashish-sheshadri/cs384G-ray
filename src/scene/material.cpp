@@ -39,9 +39,9 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
 
     const Vec3d blue(0.0f,0.0f,0.4f);
     const Vec3d yellow(0.4f,0.4f,0.0f);
-    double alpha = 0.25f;
-    double beta = 0.5f;
-    bool bNonRealism = false;
+    double alpha = 0.2f;
+    double beta = 0.6f;
+    bool bNonRealism = true;
 	for ( vector<Light*>::const_iterator litr = scene->beginLights(); litr != scene->endLights(); ++litr ){
 			Light* pLight = *litr;
             Vec3d lightDirection = pLight->getDirection(intersectionPoint);
@@ -57,8 +57,8 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
                 double coolFac = (1.0f+ (-1.0f)* aLightToNormal)/2.0f;
                 double warmFac = 1.0f - coolFac;
                 Vec3d diffuseIntensity = (coolFac * ( blue + kd(i) * alpha)) + (warmFac * ( yellow + kd(i) * beta));
-                Vec3d specularIntensity = ks(i) * pLight->getColor(intersectionPoint);
-                shadowLight %= ( diffuseIntensity + specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));
+                //Vec3d specularIntensity = ks(i) * pLight->getColor(intersectionPoint);
+                shadowLight %= diffuseIntensity; //+ specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));
             } else {
                 Vec3d diffuseIntensity = kd(i);
                 Vec3d specularIntensity = ks(i);
@@ -67,7 +67,10 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
                 shadowLight = pLight->shadowAttenuation(intersectionPoint);
                 shadowLight %= (diffuseIntensity * std::max(aLightToNormal,0.0) + specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));}
             intensity += pLight->distanceAttenuation(intersectionPoint)*shadowLight;}
-    return intensity + emmisiveIntensity + ambientIntensity;}
+    if(bNonRealism)
+        return intensity;
+    else
+        return intensity + emmisiveIntensity + ambientIntensity;}
 
 TextureMap::TextureMap( string filename ) {
 
