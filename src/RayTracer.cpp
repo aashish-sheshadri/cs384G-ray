@@ -324,18 +324,51 @@ void RayTracer::drawEdges(){
     if(true){
         int kernalWidth = 3;
         int kernalHeight = 3;
+        double distThresh = 0.01;
+        double viewAngleThresh = 0.15;
         std::vector<std::vector<Descriptor> >::iterator beginIt(_descriptors.begin());
+        int strength = 0;
         for (int y=0; y<buffer_height; y++) {
             for (int x=0; x<buffer_width; x++) {
+                bool bEdge = false;
                 std::vector<std::vector<std::vector<Descriptor> >::iterator > neighbours;
                 std::back_insert_iterator<std::vector<std::vector<std::vector<Descriptor> >::iterator > > neighboursBackIIt (neighbours);
-                loadNeighbours(y, x, kernalWidth, kernalHeight, buffer_width, beginIt, neighboursBackIIt);
+                loadNeighbours(y, x, kernalWidth, kernalHeight, buffer_width, buffer_height, beginIt, neighboursBackIIt);
+//                std::cout<<neighbours.size();
                 std::vector<std::vector<Descriptor> >::iterator thisIt = beginIt + (y*buffer_width+x);
+                Vec3d thisPoint(0.0f,0.0f,0.0f);
+                double thisViewAngle = 0.0f;
+                loadAvgVals((*thisIt).begin(),(*thisIt).end(),thisPoint,thisViewAngle);
                 for(std::vector<std::vector<std::vector<Descriptor> >::iterator >::iterator it = neighbours.begin();it!=neighbours.end();++it){
-//                    (*(*it));
-                }}}
+                    Vec3d thisNeighbourPoint(0.0f,0.0f,0.0f);
+                    double thisNeighbourViewAngle = 0.0f;
+                    loadAvgVals((*(*it)).begin(),(*(*it)).end(),thisNeighbourPoint,thisNeighbourViewAngle);
+                    double xDiff = std::fabs(thisPoint[0] - thisNeighbourPoint[0]);
+                    double yDiff = std::fabs(thisPoint[1] - thisNeighbourPoint[1]);
+                    double zDiff = std::fabs(thisPoint[2] - thisNeighbourPoint[2]);
+
+//                    if(xDiff>=distThresh || yDiff>=distThresh || zDiff>=distThresh){
+//                        bEdge = true;
+//                        break;}
+                    if(std::fabs(thisViewAngle - thisNeighbourViewAngle)>viewAngleThresh){
+                        bEdge = true;
+                        ++strength;}
+                    if(std::fabs(thisViewAngle)<0.05 && std::fabs(thisViewAngle)>std::fabs(thisNeighbourViewAngle)){
+                        bEdge = true;
+                        strength+=5;}
+                }
+                if(bEdge){
+                    unsigned char *pixel = buffer + ( x + y * buffer_width ) * 3;
+                    pixel[0] = (int)(50/strength);
+                    pixel[1] = (int)(50/strength);
+                    pixel[2] = (int)(50/strength);
+                }
+            }
+//            std::cout<<std::endl;
+        }
     } else {
 
-    }}
+    }
+}
 
 

@@ -60,7 +60,7 @@ struct ZeroMean{
         return (temp*temp);}};
 
 template <typename RI, typename BII>
-void loadNeighbours(int currY, int currX, int knlWidth, int knlHeight, int srcBufferWidth, RI begin, BII neighbours){
+void loadNeighbours(int currY, int currX, int knlWidth, int knlHeight, int srcBufferWidth, int srcBufferHeight, RI begin, BII neighbours){
     int top = -knlHeight/2;
     int bottom = knlHeight/2;
     int left = -knlWidth/2;
@@ -79,9 +79,22 @@ void loadNeighbours(int currY, int currX, int knlWidth, int knlHeight, int srcBu
         for(int x = left;x<=right;++x){
             neighbourY = currY + y;
             neighbourX = currX + x;
-            if((neighbourX<0||neighbourY<0)||(x==0&&y==0)){
+            if(neighbourX<0||neighbourY<0||(x==0&&y==0)||neighbourX>=srcBufferWidth||neighbourY>=srcBufferHeight){
                 continue;}
             *neighbours = begin + (neighbourY*srcBufferWidth+neighbourX);}}}
+
+template <typename RI>
+void loadAvgVals(RI begin, RI end, Vec3d& point, double& viewAngle){
+    int numSamples = 0;
+    while(begin!=end){
+        Vec3d thisPoint = (*begin)._point;
+        double thisAngle = (*begin)._viewAngle;
+        point += thisPoint;
+        viewAngle += thisAngle;
+        ++begin;
+        ++numSamples;}
+    point = point/(double)numSamples;
+    viewAngle = viewAngle/(double)numSamples;}
 
 class Scene;
 class RayTracer
