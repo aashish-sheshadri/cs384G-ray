@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <numeric>
 #include "kdtree.h"
+#include <iterator>
 
 
 template<typename T>
@@ -58,10 +59,39 @@ struct ZeroMean{
         T temp = val - _mean;
         return (temp*temp);}};
 
+template <typename RI, typename BII>
+void loadNeighbours(int currY, int currX, int knlWidth, int knlHeight, int srcBufferWidth, RI begin, BII neighbours){
+    int top = -knlHeight/2;
+    int bottom = knlHeight/2;
+    int left = -knlWidth/2;
+    int right = knlWidth/2;
+
+    if(knlHeight%2 == 0){
+        --bottom;}
+
+    if(knlWidth%2 == 0){
+        --right;}
+
+    int neighbourX = -1;
+    int neighbourY = -1;
+
+    for (int y = top;y<=bottom;++y){
+        for(int x = left;x<=right;++x){
+            neighbourY = currY + y;
+            neighbourX = currX + x;
+            if((neighbourX<0||neighbourY<0)||(x==0&&y==0)){
+                continue;}
+            *neighbours = begin + (neighbourY*srcBufferWidth+neighbourX);}}}
+
 class Scene;
 class RayTracer
 {
 public:
+    struct Descriptor{
+        Vec3d _point;
+        double _viewAngle;
+        Descriptor(Vec3d point = Vec3d(0.0f,0.0f,0.0f), double viewAngle = -1.0f):_point(point),_viewAngle(viewAngle){}};
+
     RayTracer();
     ~RayTracer();
 
@@ -84,8 +114,11 @@ public:
       { return m_bBufferReady; }
 
 	const Scene& getScene() { return *scene; }
+    void drawEdges();
 
 private:
+    std::vector<std::vector<Descriptor> > _descriptors;
+    std::vector<std::vector<Descriptor> >::iterator _descriptorIterator;
     void updateReflectionParams(const ray&, const isect&, Vec3d&, Vec3d&, Vec3d&);
     bool updateRefractionParams(const ray&, const isect&, const Material&, const Vec3d&, Vec3d&, Vec3d&, Vec3d&);
 	unsigned char *buffer;

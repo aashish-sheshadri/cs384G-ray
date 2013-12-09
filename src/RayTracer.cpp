@@ -59,12 +59,15 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
     }
 
     if( intersectionFound ) {
+        Vec3d pointOnObject = r.at(i.t);
+        if(r.type() == ray::VISIBILITY){
+            double viewAngle = (-1*r.getDirection())*i.N;
+            (*_descriptorIterator).push_back(Descriptor(pointOnObject,viewAngle));}
+
         const Material& m = i.getMaterial();
         Vec3d intensity = m.shade(scene, r, i);
         if(depth < 1)
             return intensity;
-        Vec3d pointOnObject = r.at(i.t);
-
         Vec3d reflectedDirectionCi(0.0f,0.0f,0.0f);
         Vec3d reflectedDirectionSi(0.0f,0.0f,0.0f);
         Vec3d reflectedDir(0.0f,0.0f,0.0f);
@@ -93,8 +96,9 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
 		// is just black.
-
-        return Vec3d( 0.0, 0.0, 0.0 );
+        if(r.type() == ray::VISIBILITY){
+            (*_descriptorIterator).push_back(Descriptor(Vec3d(0.0f,0.0f,0.0f),0.0f));}
+        return Vec3d( 0.5f, 0.5f, 0.5f );
 	}
 }
 
@@ -139,7 +143,6 @@ bool RayTracer::checkTotalInternal(const ray &r, const isect &i){
 RayTracer::RayTracer()
 	: scene( 0 ), buffer( 0 ), buffer_width( 256 ), buffer_height( 256 ), m_bBufferReady( false )
 {
-
 }
 
 
@@ -228,6 +231,12 @@ void RayTracer::traceSetup( int w, int h )
 
 	}
 	memset( buffer, 0, w*h*3 );
+    _descriptors.clear();
+
+    if(true){
+        std::vector< std::vector<Descriptor> > temp(w*h);
+        _descriptors = temp;
+        _descriptorIterator = _descriptors.begin();}
 	m_bBufferReady = true;
 }
 
@@ -242,6 +251,7 @@ void RayTracer::tracePixel( int i, int j )
 	double y = double(j)/double(buffer_height);
     int numSamples = traceUI->getSampleSize();
     numSamples = (numSamples%2)==0?numSamples+1:numSamples;
+    (*_descriptorIterator).reserve(numSamples*numSamples);
     if(numSamples>1){
         double xMin = i - 0.5f;
         double yMin = j - 0.5f;
@@ -305,9 +315,27 @@ void RayTracer::tracePixel( int i, int j )
         col = trace(x,y);}
 
 	unsigned char *pixel = buffer + ( i + j * buffer_width ) * 3;
-    // *improve* super sampling goes here
 	pixel[0] = (int)( 255.0 * col[0]);
 	pixel[1] = (int)( 255.0 * col[1]);
-	pixel[2] = (int)( 255.0 * col[2]);}
+    pixel[2] = (int)( 255.0 * col[2]);
+    ++_descriptorIterator;}
+
+void RayTracer::drawEdges(){
+    if(true){
+        int kernalWidth = 3;
+        int kernalHeight = 3;
+        std::vector<std::vector<Descriptor> >::iterator beginIt(_descriptors.begin());
+        for (int y=0; y<buffer_height; y++) {
+            for (int x=0; x<buffer_width; x++) {
+                std::vector<std::vector<std::vector<Descriptor> >::iterator > neighbours;
+                std::back_insert_iterator<std::vector<std::vector<std::vector<Descriptor> >::iterator > > neighboursBackIIt (neighbours);
+                loadNeighbours(y, x, kernalWidth, kernalHeight, buffer_width, beginIt, neighboursBackIIt);
+                std::vector<std::vector<Descriptor> >::iterator thisIt = beginIt + (y*buffer_width+x);
+                for(std::vector<std::vector<std::vector<Descriptor> >::iterator >::iterator it = neighbours.begin();it!=neighbours.end();++it){
+//                    (*(*it));
+                }}}
+    } else {
+
+    }}
 
 

@@ -39,8 +39,8 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
 
     const Vec3d blue(0.0f,0.0f,0.4f);
     const Vec3d yellow(0.4f,0.4f,0.0f);
-    double alpha = 0.25f;
-    double beta = 0.5f;
+    double alpha = 0.2f;
+    double beta = 0.6f;
     bool bNonRealism = false;
 	for ( vector<Light*>::const_iterator litr = scene->beginLights(); litr != scene->endLights(); ++litr ){
 			Light* pLight = *litr;
@@ -57,8 +57,8 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
                 double coolFac = (1.0f+ (-1.0f)* aLightToNormal)/2.0f;
                 double warmFac = 1.0f - coolFac;
                 Vec3d diffuseIntensity = (coolFac * ( blue + kd(i) * alpha)) + (warmFac * ( yellow + kd(i) * beta));
-                Vec3d specularIntensity = ks(i) * pLight->getColor(intersectionPoint);
-                shadowLight %= ( diffuseIntensity + specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));
+                //Vec3d specularIntensity = ks(i) * pLight->getColor(intersectionPoint);
+                shadowLight %= diffuseIntensity; //+ specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));
             } else {
                 Vec3d diffuseIntensity = kd(i);
                 Vec3d specularIntensity = ks(i);
@@ -67,7 +67,10 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
                 shadowLight = pLight->shadowAttenuation(intersectionPoint);
                 shadowLight %= (diffuseIntensity * std::max(aLightToNormal,0.0) + specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));}
             intensity += pLight->distanceAttenuation(intersectionPoint)*shadowLight;}
-    return intensity + emmisiveIntensity + ambientIntensity;}
+    if(bNonRealism)
+        return intensity;
+    else
+        return intensity + emmisiveIntensity + ambientIntensity;}
 
 TextureMap::TextureMap( string filename ) {
 
@@ -116,7 +119,13 @@ Vec3d TextureMap::getMappedValue( const Vec2d& coord ) const
     // and use these to perform bilinear interpolation
     // of the values.
 
-
+    float xCor = coord[0] * width,
+               yCor = coord[1] * height;
+       int lowXindex = (int)xCor;
+       int lowYindex = (int)yCor;
+       float deltaX = xCor - lowXindex, deltaY = yCor - lowYindex;
+       float a = (1-deltaX)*(1-deltaY), b = (deltaX)*(1-deltaY), c = (1-deltaX)*deltaY, d = deltaX*deltaY;
+       return a*getPixelAt(lowXindex,lowYindex) + b*getPixelAt(lowXindex+1,lowYindex) + c*getPixelAt(lowXindex,lowYindex+1) + d*getPixelAt(lowXindex+1,lowYindex+1);
 
     return Vec3d(1.0, 1.0, 1.0);
 
