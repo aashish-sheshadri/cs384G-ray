@@ -31,7 +31,7 @@ public:
 	virtual int		run() = 0;
 
 	// Send an alert to the user in some manner
-	virtual void		alert(const string& msg) = 0;
+    virtual void		alert(const string& msg) = 0;
 
 	// setters
 	virtual void		setRayTracer( RayTracer* r )
@@ -48,7 +48,8 @@ public:
     bool    getAdapativeSampling() const { return m_bAdaptiveSampling;}
     float   getBumpScale() const { return m_fBumpScale;}
     float   getDepthThreshold() const { return m_fDepthThreshold;}
-    float   getAngleThreshold() const { return m_fAngleThreshold;}
+    float   getAngleThresholdA() const { return m_fAngleThresholdA;}
+    float   getAngleThresholdB() const { return m_fAngleThresholdB;}
     bool    nonRealism() const { return m_bNonRealism;}
     bool    edgeRedraw() const { return m_bEdgeRedraw;}
 
@@ -65,7 +66,8 @@ protected:
     bool        m_bAdaptiveSampling;
     float       m_fBumpScale;
     float       m_fDepthThreshold;
-    float       m_fAngleThreshold;
+    float       m_fAngleThresholdA;
+    float       m_fAngleThresholdB;
     bool        m_bNonRealism;
     bool        m_bEdgeRedraw;
     /* USE THIS Aashish

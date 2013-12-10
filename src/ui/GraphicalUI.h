@@ -54,9 +54,11 @@ public:
     Fl_Check_Button*    m_accelerateCheckButton;
 
     Fl_Float_Input*     m_depthDenominator;
-    Fl_Float_Input*     m_angleDenominator;
+    Fl_Float_Input*     m_angleDenominatorA;
+    Fl_Float_Input*     m_angleDenominatorB;
     Fl_Float_Input*     m_depthNumerator;
-    Fl_Float_Input*     m_angleNumerator;
+    Fl_Float_Input*     m_angleNumeratorA;
+    Fl_Float_Input*     m_angleNumeratorB;
     Fl_Slider*			m_bumpScaleSlider;
     Fl_Check_Button*    m_nonRealismButton;
     Fl_Check_Button*    m_edgeRedraw;

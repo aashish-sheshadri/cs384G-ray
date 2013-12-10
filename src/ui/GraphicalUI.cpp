@@ -419,25 +419,35 @@ GraphicalUI::GraphicalUI() {
         m_edgeRedraw->value(m_bEdgeRedraw);
 
         // set up depth threshold
-        m_depthNumerator = new Fl_Float_Input(125, 350, 30, 20, "&Depth Threshold");
+        m_depthNumerator = new Fl_Float_Input(135, 350, 30, 20, "&Depth Threshold");
         m_depthNumerator->user_data((void*)(this));
         m_depthNumerator->value("1.0");
-        m_depthDenominator = new Fl_Float_Input(165, 350, 30, 20, "/");
+        m_depthDenominator = new Fl_Float_Input(175, 350, 30, 20, "/");
         m_depthDenominator->user_data((void*)(this));
         m_depthDenominator->value("1.0");
 
-        // set up edge angle threshold
-        m_angleNumerator = new Fl_Float_Input(125, 380, 30, 20, "&Angle Threshold");
-        m_angleNumerator->user_data((void*)(this));
-        m_angleNumerator->value("1.0");
-        m_angleDenominator = new Fl_Float_Input(165, 380, 30, 20, "/");
-        m_angleDenominator->user_data((void*)(this));
-        m_angleDenominator->value("1.0");
+        // set up edge angle A threshold
+        m_fAngleThresholdA = 1.0f;
+        m_angleNumeratorA = new Fl_Float_Input(135, 380, 30, 20, "&Angle A Threshold");
+        m_angleNumeratorA->user_data((void*)(this));
+        m_angleNumeratorA->value("1.0");
+        m_angleDenominatorA = new Fl_Float_Input(175, 380, 30, 20, "/");
+        m_angleDenominatorA->user_data((void*)(this));
+        m_angleDenominatorA->value("1.0");
+
+        // set up edge angle B threshold
+        m_fAngleThresholdB = 1.0f;
+        m_angleNumeratorB = new Fl_Float_Input(135, 410, 30, 20, "&Angle B Threshold");
+        m_angleNumeratorB->user_data((void*)(this));
+        m_angleNumeratorB->value("1.0");
+        m_angleDenominatorB = new Fl_Float_Input(175, 410, 30, 20, "/");
+        m_angleDenominatorB->user_data((void*)(this));
+        m_angleDenominatorB->value("1.0");
 
 
         // install sample size slider
         m_fBumpScale = 1;
-        m_bumpScaleSlider = new Fl_Value_Slider(10, 410, 180, 20, "Bump Scale");
+        m_bumpScaleSlider = new Fl_Value_Slider(10, 440, 180, 20, "Bump Scale");
         m_bumpScaleSlider->user_data((void*)(this));	// record self to be used by static callback functions
         m_bumpScaleSlider->type(FL_HOR_NICE_SLIDER);
         m_bumpScaleSlider->labelfont(FL_COURIER);
