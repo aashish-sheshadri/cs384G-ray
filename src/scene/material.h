@@ -58,7 +58,7 @@ class BumpMap
        // is assumed to be within the parametrization space:
        // [0, 1] x [0, 1]
        // (i.e., {(u, v): 0 <= u <= 1 and 0 <= v <= 1}
-       Vec3d getDiffValue( const Vec2d& coord, const float scale ) const;
+       Vec3d getDiffValue(const Vec2d& coord) const;
        ~BumpMap()
          { delete data; }
 
@@ -178,7 +178,7 @@ public:
     }
 
     Vec3d value( const isect& is ) const;
-    Vec3d valueTMP( const isect& is , const float scale ) const;
+    Vec3d valueTMP(const isect& is ) const;
     double intensityValue( const isect& is ) const;
 
 	// Use this to determine if the particular parameter is
@@ -240,7 +240,7 @@ public:
     Vec3d kd( const isect& i ) const { return _kd.value(i); }
     Vec3d kr( const isect& i ) const { return _kr.value(i); }
     Vec3d kt( const isect& i ) const { return _kt.value(i); }
-    Vec3d bump( const isect& i, const float scale ) const { return _bump.valueTMP(i, scale); }
+    Vec3d bump( const isect& i ) const { return _bump.valueTMP(i); }
     double shininess( const isect& i ) const
 	{
 		// Have to renormalize into the range 0-128 if it's texture mapped.

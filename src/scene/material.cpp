@@ -33,38 +33,49 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
     Vec3d ambientIntensity = ka(i);
     ambientIntensity %=  scene->ambient();
 
-	// When you're iterating through the lights,
-	// you'll want to use code that looks something
-	// like this:
-	//
-	const Vec3d intersectionPoint = r.at(i.t);
+        // When you're iterating through the lights,
+        // you'll want to use code that looks something
+        // like this:
+        //
+        const Vec3d intersectionPoint = r.at(i.t);
 
     const Vec3d blue(0.0f,0.0f,0.4f);
     const Vec3d yellow(0.4f,0.4f,0.0f);
     double alpha = 0.2f;
     double beta = 0.6f;
     bool bNonRealism = traceUI->nonRealism();
-	for ( vector<Light*>::const_iterator litr = scene->beginLights(); litr != scene->endLights(); ++litr ){
+        for ( vector<Light*>::const_iterator litr = scene->beginLights(); litr != scene->endLights(); ++litr ){
             Light* pLight = *litr;
             Vec3d lightDirection = pLight->getDirection(intersectionPoint);
-			Vec3d surfaceNormal = i.N;
-			double aLightToNormal = surfaceNormal * lightDirection;
+            Vec3d surfaceNormal = i.N;
+            surfaceNormal.normalize();
+            double aLightToNormal = surfaceNormal * lightDirection;
             Vec3d lightReflectedDirectionCi = (lightDirection*surfaceNormal)*surfaceNormal;
-			Vec3d lightReflectedDirectionSi = lightReflectedDirectionCi - lightDirection;
+            Vec3d lightReflectedDirectionSi = lightReflectedDirectionCi - lightDirection;
             Vec3d lightReflectedDirection = lightReflectedDirectionCi + lightReflectedDirectionSi;
-			lightReflectedDirection.normalize();
+                        lightReflectedDirection.normalize();
             double aRayToLight = (-1 * r.getDirection()) * lightReflectedDirection;
             Vec3d shadowLight(1.0f,1.0f,1.0f);
 
             if(bNonRealism){
+                if(bump(i)[0]!= 2.0f){
+                    Vec3d perturbed = 2.0f*bump(i)-1.0f;
+                    perturbed[0] *= traceUI->getBumpScale();
+                    perturbed[1] *= traceUI->getBumpScale();
+                    perturbed %=surfaceNormal;
+                    perturbed.normalize();
+                    aLightToNormal = perturbed * lightDirection;}
                 double coolFac = (1.0f+ (-1.0f)* aLightToNormal)/2.0f;
                 double warmFac = 1.0f - coolFac;
                 Vec3d diffuseIntensity = (coolFac * ( blue + kd(i) * alpha)) + (warmFac * ( yellow + kd(i) * beta));
                 //Vec3d specularIntensity = ks(i) * pLight->getColor(intersectionPoint);
                 shadowLight %= diffuseIntensity; //+ specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));
             } else {
-                if(bump(i, traceUI->getBumpScale())[0]!= 2.0f){
-                    Vec3d perturbed = 2.0f*bump(i, traceUI->getBumpScale())-1.0f;
+                if(bump(i)[0]!= 2.0f){
+                    Vec3d perturbed = 2.0f*bump(i)-1.0f;
+                    perturbed[0] *= traceUI->getBumpScale();
+                    perturbed[1] *= traceUI->getBumpScale();
+                    perturbed %=surfaceNormal;
                     perturbed.normalize();
                     aLightToNormal = perturbed * lightDirection;}
                 Vec3d diffuseIntensity = kd(i);
@@ -81,37 +92,37 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
 
 TextureMap::TextureMap( string filename ) {
 
-	int start = filename.find_last_of('.');
-	int end = filename.size() - 1;
-	if (start >= 0 && start < end) {
-		string ext = filename.substr(start, end);
-		if (!ext.compare(".png")) {
-			png_cleanup(1);
-			if (!png_init(filename.c_str(), width, height)) {
-				double gamma = 2.2;
-				int channels, rowBytes;
-				unsigned char* indata = png_get_image(gamma, channels, rowBytes);
-				int bufsize = rowBytes * height;
-				data = new unsigned char[bufsize];
-				for (int j = 0; j < height; j++)
-					for (int i = 0; i < rowBytes; i += channels)
-						for (int k = 0; k < channels; k++)
-							*(data + k + i + j * rowBytes) = *(indata + k + i + (height - j - 1) * rowBytes);
-				png_cleanup(1);
-			}
-		}
-		else
-			if (!ext.compare(".bmp")) data = readBMP(filename.c_str(), width, height);
-			else data = NULL;
-	} else data = NULL;
-	if (data == NULL) {
-		width = 0;
-		height = 0;
-		string error("Unable to load texture map '");
-		error.append(filename);
-		error.append("'.");
-		throw TextureMapException(error);
-	}
+        int start = filename.find_last_of('.');
+        int end = filename.size() - 1;
+        if (start >= 0 && start < end) {
+                string ext = filename.substr(start, end);
+                if (!ext.compare(".png")) {
+                        png_cleanup(1);
+                        if (!png_init(filename.c_str(), width, height)) {
+                                double gamma = 2.2;
+                                int channels, rowBytes;
+                                unsigned char* indata = png_get_image(gamma, channels, rowBytes);
+                                int bufsize = rowBytes * height;
+                                data = new unsigned char[bufsize];
+                                for (int j = 0; j < height; j++)
+                                        for (int i = 0; i < rowBytes; i += channels)
+                                                for (int k = 0; k < channels; k++)
+                                                        *(data + k + i + j * rowBytes) = *(indata + k + i + (height - j - 1) * rowBytes);
+                                png_cleanup(1);
+                        }
+                }
+                else
+                        if (!ext.compare(".bmp")) data = readBMP(filename.c_str(), width, height);
+                        else data = NULL;
+        } else data = NULL;
+        if (data == NULL) {
+                width = 0;
+                height = 0;
+                string error("Unable to load texture map '");
+                error.append(filename);
+                error.append("'.");
+                throw TextureMapException(error);
+        }
 }
 
 BumpMap::BumpMap( string filename ) {
@@ -151,9 +162,9 @@ BumpMap::BumpMap( string filename ) {
 
 Vec3d TextureMap::getMappedValue( const Vec2d& coord ) const
 {
-	// YOUR CODE HERE
+        // YOUR CODE HERE
 
-    // In order to add texture mapping support to the 
+    // In order to add texture mapping support to the
     // raytracer, you need to implement this function.
     // What this function should do is convert from
     // parametric space which is the unit square
@@ -172,7 +183,7 @@ Vec3d TextureMap::getMappedValue( const Vec2d& coord ) const
 
 }
 
-Vec3d BumpMap::getDiffValue( const Vec2d& coord , const float scale) const
+Vec3d BumpMap::getDiffValue( const Vec2d& coord ) const
 {
     float xCor = coord[0] * width,
     yCor = coord[1] * height;
@@ -180,9 +191,9 @@ Vec3d BumpMap::getDiffValue( const Vec2d& coord , const float scale) const
     int right = (int)x + 1;
     int top = (int)y + 1;
     Vec3d diffX = getPixelAt(x,y) - getPixelAt(right, y);
-    double avgX = scale*(diffX[0]+diffX[1]+diffX[2])/(double)3.0f;
+    double avgX = (diffX[0]+diffX[1]+diffX[2])/(double)3.0f;
     Vec3d diffY = getPixelAt(x,y) - getPixelAt(x, top);
-    double avgY = scale*(diffY[0]+diffY[1]+diffY[2])/(double)3.0f;
+    double avgY = (diffY[0]+diffY[1]+diffY[2])/(double)3.0f;
     //float deltaX = xCor - lowXindex, deltaY = yCor - lowYindex;
     Vec3d perturb(avgX, avgY, 1);
     perturb.normalize();
@@ -237,10 +248,10 @@ Vec3d MaterialParameter::value( const isect& is ) const
         return _value;
 }
 
-Vec3d MaterialParameter::valueTMP( const isect& is , const float scale) const
+Vec3d MaterialParameter::valueTMP( const isect& is ) const
 {
     if( 0 != _bumpMap )
-        return _bumpMap->getDiffValue( is.uvCoordinates , scale);
+        return _bumpMap->getDiffValue( is.uvCoordinates );
     else
         return Vec3d(2.0f,2.0f,2.0f);
 }
@@ -255,4 +266,3 @@ double MaterialParameter::intensityValue( const isect& is ) const
     else
         return (0.299 * _value[0]) + (0.587 * _value[1]) + (0.114 * _value[2]);
 }
-

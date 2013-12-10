@@ -135,9 +135,6 @@ void GraphicalUI::cb_updateThresholds(Fl_Widget *o, void *v){
     pUI->m_fAngleThresholdA = atof(pUI->m_angleNumeratorA->value()) / atof(pUI->m_angleDenominatorA->value());
     pUI->m_fAngleThresholdB = atof(pUI->m_angleNumeratorB->value()) / atof(pUI->m_angleDenominatorB->value());
     pUI->m_fDepthThreshold = atof(pUI->m_depthNumerator->value()) / atof(pUI->m_depthDenominator->value());
-    fl_message(pUI->m_fAngleThresholdA == 0.5?"yes":"no");
-    fl_message(pUI->m_fAngleThresholdB == 0.5?"yes":"no");
-    fl_message(pUI->m_fDepthThreshold == 0.5?"yes":"no");
 }
 
 void GraphicalUI::cb_sampleSizeSlides(Fl_Widget* o, void* v)
