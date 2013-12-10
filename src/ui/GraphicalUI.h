@@ -36,22 +36,28 @@ public:
 	// The FLTK widgets
 	Fl_Window*			m_mainWindow;
 	Fl_Menu_Bar*		m_menubar;
-    Fl_Box*           m_lineLabel;
+    Fl_Box*             m_lineLabel;
+    Fl_Group*           m_heuristicGroup;
 
 	Fl_Slider*			m_sizeSlider;
 	Fl_Slider*			m_depthSlider;
     Fl_Slider*			m_sampleSizeSlider;
+    Fl_Slider*			m_sampleSizeDOFSlider;
+    Fl_Slider*			m_bumpScaleSlider;
 
 	Fl_Check_Button*	m_debuggingDisplayCheckButton;
     Fl_Check_Button*    m_surfaceHeuristicButton;
     Fl_Check_Button*    m_adaptiveSamplingButton;
-    Fl_Group*           m_heuristicGroup;
+    Fl_Check_Button*    m_accelerateCheckButton;
+    Fl_Check_Button*    m_nonRealismButton;
+    Fl_Check_Button*    m_edgeRedraw;
+    Fl_Check_Button*    m_depthOfField;
 
 	Fl_Button*			m_renderButton;
-	Fl_Button*			m_stopButton;
+    Fl_Button*			m_stopButton;
     Fl_Round_Button*	m_jitterSamplingButton;
     Fl_Round_Button*	m_uniformSamplingButton;
-    Fl_Check_Button*    m_accelerateCheckButton;
+
 
     Fl_Float_Input*     m_depthDenominator;
     Fl_Float_Input*     m_angleDenominatorA;
@@ -59,9 +65,8 @@ public:
     Fl_Float_Input*     m_depthNumerator;
     Fl_Float_Input*     m_angleNumeratorA;
     Fl_Float_Input*     m_angleNumeratorB;
-    Fl_Slider*			m_bumpScaleSlider;
-    Fl_Check_Button*    m_nonRealismButton;
-    Fl_Check_Button*    m_edgeRedraw;
+    Fl_Float_Input*     m_planeOfFocusDistanceDOF;
+    Fl_Float_Input*     m_lensDiameterDOF;
 
 	TraceGLWindow*		m_traceGlWindow;
 
@@ -86,21 +91,26 @@ private:
 
 	static void cb_sizeSlides(Fl_Widget* o, void* v);
     static void cb_sampleSizeSlides(Fl_Widget* o, void* v);
-	static void cb_depthSlides(Fl_Widget* o, void* v);
+    static void cb_depthSlides(Fl_Widget* o, void* v);
+    static void cb_bumpScaleSlides(Fl_Widget* o, void* v);
+    static void cb_sampleSizeDOFSlides(Fl_Widget* o, void* v);
 
 	static void cb_render(Fl_Widget* o, void* v);
-	static void cb_stop(Fl_Widget* o, void* v);
-	static void cb_debuggingDisplayCheckButton(Fl_Widget* o, void* v);
-    static void cb_accelerateCheckButton(Fl_Widget* o, void* v);
+    static void cb_stop(Fl_Widget* o, void* v);
+
     static void cb_jitterSamplingRadioButton(Fl_Widget* o, void* v);
     static void cb_uniformSamplingRadioButton(Fl_Widget* o, void* v);
-    static void cb_heuristicCheckButton(Fl_Widget* o, void* v);
-    static void cb_adaptiveSamplingCheckButton(Fl_Widget* o, void* v);
 
-    static void cb_bumpScaleSlides(Fl_Widget* o, void* v);
+    static void cb_heuristicCheckButton(Fl_Widget* o, void* v);
+    static void cb_debuggingDisplayCheckButton(Fl_Widget* o, void* v);
+    static void cb_accelerateCheckButton(Fl_Widget* o, void* v);
+    static void cb_adaptiveSamplingCheckButton(Fl_Widget* o, void* v);
     static void cb_edgeRedrawCheckButton(Fl_Widget *o, void *v);
     static void cb_nonRealismCheckButton(Fl_Widget* o, void* v);
-    static void cb_updateThresholds(Fl_Widget* o, void* v);
+    static void cb_depthOfFieldCheckButton(Fl_Widget *o, void *v);
+
+    static void cb_updateThresholdsInputs(Fl_Widget* o, void* v);
+    static void cb_updateDOFInputs(Fl_Widget* o, void* v);
 
 	static bool doneTrace;		// Flag that gets set when the trace is done
 	static bool stopTrace;		// Flag that gets set when the trace should be stopped

@@ -52,6 +52,10 @@ public:
     float   getAngleThresholdB() const { return m_fAngleThresholdB;}
     bool    nonRealism() const { return m_bNonRealism;}
     bool    edgeRedraw() const { return m_bEdgeRedraw;}
+    bool    depthOfField() const { return m_bDepthOfField;}
+    int     getSampleSizeDOF() const { return m_nDOFsampleSize;}
+    float   getLensDiameter() const { return m_fDOFlensDiameter;}
+    float   getDistanceOfFocusPlane() const { return m_fDOFdistanceOfFocusPlane;}
 
 protected:
 	RayTracer*	raytracer;
@@ -70,6 +74,10 @@ protected:
     float       m_fAngleThresholdB;
     bool        m_bNonRealism;
     bool        m_bEdgeRedraw;
+    bool        m_bDepthOfField;
+    int         m_nDOFsampleSize;
+    float       m_fDOFlensDiameter;
+    float       m_fDOFdistanceOfFocusPlane;
 
 
 
