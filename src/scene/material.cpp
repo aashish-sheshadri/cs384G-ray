@@ -4,9 +4,11 @@
 
 #include "../fileio/bitmap.h"
 #include "../fileio/pngimage.h"
+#include "../ui/TraceUI.h"
 
 using namespace std;
 extern bool debugMode;
+extern TraceUI* traceUI;
 
 // Apply the phong model to this point on the surface of the object, returning
 // the color of that point.
@@ -41,7 +43,7 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
     const Vec3d yellow(0.4f,0.4f,0.0f);
     double alpha = 0.2f;
     double beta = 0.6f;
-    bool bNonRealism = false;
+    bool bNonRealism = traceUI->nonRealism();
 	for ( vector<Light*>::const_iterator litr = scene->beginLights(); litr != scene->endLights(); ++litr ){
 			Light* pLight = *litr;
             Vec3d lightDirection = pLight->getDirection(intersectionPoint);
@@ -60,8 +62,8 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
                 //Vec3d specularIntensity = ks(i) * pLight->getColor(intersectionPoint);
                 shadowLight %= diffuseIntensity; //+ specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));
             } else {
-                if(!bump(i)[0]!= 2.0f){
-                    Vec3d perturbed = 2.0f*bump(i)-1.0f;
+                if(!bump(i, traceUI->getBumpScale())[0]!= 2.0f){
+                    Vec3d perturbed = 2.0f*bump(i, traceUI->getBumpScale())-1.0f;
                     perturbed.normalize();
                     aLightToNormal = perturbed * lightDirection;
                 }
@@ -173,7 +175,7 @@ Vec3d TextureMap::getMappedValue( const Vec2d& coord ) const
 
 }
 
-Vec3d BumpMap::getDiffValue( const Vec2d& coord ) const
+Vec3d BumpMap::getDiffValue( const Vec2d& coord , const float scale) const
 {
     float xCor = coord[0] * width,
     yCor = coord[1] * height;
@@ -181,9 +183,9 @@ Vec3d BumpMap::getDiffValue( const Vec2d& coord ) const
     int right = (int)x + 1;
     int top = (int)y + 1;
     Vec3d diffX = getPixelAt(x,y) - getPixelAt(right, y);
-    double avgX = (diffX[0]+diffX[1]+diffX[2])/(double)3.0f;
+    double avgX = scale*(diffX[0]+diffX[1]+diffX[2])/(double)3.0f;
     Vec3d diffY = getPixelAt(x,y) - getPixelAt(x, top);
-    double avgY = (diffY[0]+diffY[1]+diffY[2])/(double)3.0f;
+    double avgY = scale*(diffY[0]+diffY[1]+diffY[2])/(double)3.0f;
     //float deltaX = xCor - lowXindex, deltaY = yCor - lowYindex;
     Vec3d perturb(avgX, avgY, 1);
     perturb.normalize();
@@ -238,10 +240,10 @@ Vec3d MaterialParameter::value( const isect& is ) const
         return _value;
 }
 
-Vec3d MaterialParameter::valueTMP( const isect& is ) const
+Vec3d MaterialParameter::valueTMP( const isect& is , const float scale) const
 {
     if( 0 != _bumpMap )
-        return _bumpMap->getDiffValue( is.uvCoordinates );
+        return _bumpMap->getDiffValue( is.uvCoordinates , scale);
     else
         return Vec3d(2.0f,2.0f,2.0f);
 }

@@ -46,6 +46,10 @@ public:
     bool    useSurface() const { return m_bSurfaceHeuristic; }
     int     getSampleSize() const { return m_nSampleSize; }
     bool    getAdapativeSampling() const { return m_bAdaptiveSampling;}
+    float   getBumpScale() const { return m_fBumpScale;}
+    float   getDepthThreshold() const { return m_fDepthThreshold;}
+    float   getAngleThreshold() const { return m_fAngleThreshold;}
+    bool    nonRealism() const { return m_bNonRealism;}
 
 protected:
 	RayTracer*	raytracer;
@@ -58,6 +62,11 @@ protected:
     bool        m_bUniform;
     bool        m_bSurfaceHeuristic;
     bool        m_bAdaptiveSampling;
+    float       m_fBumpScale;
+    float       m_fDepthThreshold;
+    float       m_fAngleThreshold;
+    bool        m_bNonRealism;
+
 
 	// Determines whether or not to show debugging information
 	// for individual rays.  Disabled by default for efficiency

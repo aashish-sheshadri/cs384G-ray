@@ -15,6 +15,7 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_Box.H>
+#include <FL/Fl_Float_Input.H>
 
 #include <FL/Fl_File_Chooser.H>		// FLTK file chooser
 
@@ -52,6 +53,14 @@ public:
     Fl_Round_Button*	m_uniformSamplingButton;
     Fl_Check_Button*    m_accelerateCheckButton;
 
+    Fl_Float_Input*     m_depthDenominator;
+    Fl_Float_Input*     m_angleDenominator;
+    Fl_Float_Input*     m_depthNumerator;
+    Fl_Float_Input*     m_angleNumerator;
+    Fl_Slider*			m_bumpScaleSlider;
+    Fl_Button*			m_renderEdgesButton;
+    Fl_Check_Button*    m_nonRealismButton;
+
 	TraceGLWindow*		m_traceGlWindow;
 
 	DebuggingWindow*	m_debuggingWindow;
@@ -85,6 +94,10 @@ private:
     static void cb_uniformSamplingRadioButton(Fl_Widget* o, void* v);
     static void cb_heuristicCheckButton(Fl_Widget* o, void* v);
     static void cb_adaptiveSamplingCheckButton(Fl_Widget* o, void* v);
+
+    static void cb_bumpScaleSlides(Fl_Widget* o, void* v);
+    static void cb_renderEdges(Fl_Widget* o, void* v);
+    static void cb_nonRealismCheckButton(Fl_Widget* o, void* v);
 
 	static bool doneTrace;		// Flag that gets set when the trace is done
 	static bool stopTrace;		// Flag that gets set when the trace should be stopped
