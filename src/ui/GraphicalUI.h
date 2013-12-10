@@ -100,6 +100,7 @@ private:
     static void cb_bumpScaleSlides(Fl_Widget* o, void* v);
     static void cb_edgeRedrawCheckButton(Fl_Widget *o, void *v);
     static void cb_nonRealismCheckButton(Fl_Widget* o, void* v);
+    static void cb_updateThresholds(Fl_Widget* o, void* v);
 
 	static bool doneTrace;		// Flag that gets set when the trace is done
 	static bool stopTrace;		// Flag that gets set when the trace should be stopped

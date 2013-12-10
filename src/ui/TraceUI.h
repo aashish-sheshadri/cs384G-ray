@@ -70,11 +70,7 @@ protected:
     float       m_fAngleThresholdB;
     bool        m_bNonRealism;
     bool        m_bEdgeRedraw;
-    /* USE THIS Aashish
-    GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
-    pUI->m_fAngleThreshold = atof(pUI->m_angleNumerator->value()) / atof(pUI->m_angleDenominator->value());
-    pUI->m_fDepthThreshold = atof(pUI->m_depthNumerator->value()) / atof(pUI->m_depthDenominator->value());
-    */
+
 
 
 	// Determines whether or not to show debugging information

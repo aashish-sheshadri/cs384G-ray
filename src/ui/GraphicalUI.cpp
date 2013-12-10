@@ -130,6 +130,16 @@ void GraphicalUI::cb_uniformSamplingRadioButton(Fl_Widget* o, void* v)
     ((GraphicalUI*)(o->user_data()))->m_bUniform= true ;
 }
 
+void GraphicalUI::cb_updateThresholds(Fl_Widget *o, void *v){
+    GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
+    pUI->m_fAngleThresholdA = atof(pUI->m_angleNumeratorA->value()) / atof(pUI->m_angleDenominatorA->value());
+    pUI->m_fAngleThresholdB = atof(pUI->m_angleNumeratorB->value()) / atof(pUI->m_angleDenominatorB->value());
+    pUI->m_fDepthThreshold = atof(pUI->m_depthNumerator->value()) / atof(pUI->m_depthDenominator->value());
+    fl_message(pUI->m_fAngleThresholdA == 0.5?"yes":"no");
+    fl_message(pUI->m_fAngleThresholdB == 0.5?"yes":"no");
+    fl_message(pUI->m_fDepthThreshold == 0.5?"yes":"no");
+}
+
 void GraphicalUI::cb_sampleSizeSlides(Fl_Widget* o, void* v)
 {
     ((GraphicalUI*)(o->user_data()))->m_nSampleSize=int( ((Fl_Slider *)o)->value() ) ;
@@ -422,27 +432,33 @@ GraphicalUI::GraphicalUI() {
         m_depthNumerator = new Fl_Float_Input(135, 350, 30, 20, "&Depth Threshold");
         m_depthNumerator->user_data((void*)(this));
         m_depthNumerator->value("1.0");
+        m_depthNumerator->callback(cb_updateThresholds);
         m_depthDenominator = new Fl_Float_Input(175, 350, 30, 20, "/");
         m_depthDenominator->user_data((void*)(this));
         m_depthDenominator->value("1.0");
+        m_depthDenominator->callback(cb_updateThresholds);
 
         // set up edge angle A threshold
         m_fAngleThresholdA = 1.0f;
         m_angleNumeratorA = new Fl_Float_Input(135, 380, 30, 20, "&Angle A Threshold");
         m_angleNumeratorA->user_data((void*)(this));
         m_angleNumeratorA->value("1.0");
+        m_angleNumeratorA->callback(cb_updateThresholds);
         m_angleDenominatorA = new Fl_Float_Input(175, 380, 30, 20, "/");
         m_angleDenominatorA->user_data((void*)(this));
         m_angleDenominatorA->value("1.0");
+        m_angleDenominatorA->callback(cb_updateThresholds);
 
         // set up edge angle B threshold
         m_fAngleThresholdB = 1.0f;
         m_angleNumeratorB = new Fl_Float_Input(135, 410, 30, 20, "&Angle B Threshold");
         m_angleNumeratorB->user_data((void*)(this));
         m_angleNumeratorB->value("1.0");
+        m_angleNumeratorB->callback(cb_updateThresholds);
         m_angleDenominatorB = new Fl_Float_Input(175, 410, 30, 20, "/");
         m_angleDenominatorB->user_data((void*)(this));
         m_angleDenominatorB->value("1.0");
+        m_angleDenominatorB->callback(cb_updateThresholds);
 
 
         // install sample size slider
