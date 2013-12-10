@@ -45,7 +45,7 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
     double beta = 0.6f;
     bool bNonRealism = traceUI->nonRealism();
 	for ( vector<Light*>::const_iterator litr = scene->beginLights(); litr != scene->endLights(); ++litr ){
-			Light* pLight = *litr;
+            Light* pLight = *litr;
             Vec3d lightDirection = pLight->getDirection(intersectionPoint);
 			Vec3d surfaceNormal = i.N;
 			double aLightToNormal = surfaceNormal * lightDirection;
@@ -55,6 +55,7 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
 			lightReflectedDirection.normalize();
             double aRayToLight = (-1 * r.getDirection()) * lightReflectedDirection;
             Vec3d shadowLight(1.0f,1.0f,1.0f);
+
             if(bNonRealism){
                 double coolFac = (1.0f+ (-1.0f)* aLightToNormal)/2.0f;
                 double warmFac = 1.0f - coolFac;
@@ -62,11 +63,10 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
                 //Vec3d specularIntensity = ks(i) * pLight->getColor(intersectionPoint);
                 shadowLight %= diffuseIntensity; //+ specularIntensity * std::pow(std::max(aRayToLight,0.0),shininess(i)));
             } else {
-                if(!bump(i, traceUI->getBumpScale())[0]!= 2.0f){
+                if(bump(i, traceUI->getBumpScale())[0]!= 2.0f){
                     Vec3d perturbed = 2.0f*bump(i, traceUI->getBumpScale())-1.0f;
                     perturbed.normalize();
-                    aLightToNormal = perturbed * lightDirection;
-                }
+                    aLightToNormal = perturbed * lightDirection;}
                 Vec3d diffuseIntensity = kd(i);
                 Vec3d specularIntensity = ks(i);
                 diffuseIntensity%=pLight->getColor(intersectionPoint);
@@ -76,10 +76,7 @@ Vec3d Material::shade( Scene *scene, const ray& r, const isect& i ) const
             }
             intensity += shadowLight*pLight->distanceAttenuation(intersectionPoint);
     }
-    if(bNonRealism)
-        return intensity;
-    else
-        return intensity + emmisiveIntensity + ambientIntensity;
+    return intensity + emmisiveIntensity + ambientIntensity;
 }
 
 TextureMap::TextureMap( string filename ) {
