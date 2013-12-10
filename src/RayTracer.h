@@ -24,6 +24,19 @@ struct Jitter{
         return (randVal*sign + baseVal);}};
 
 template<typename T>
+struct JitterVal{
+    T jitterMax;
+    JitterVal(T jitterMax){
+        this->jitterMax = jitterMax;}
+    T operator ()(){
+        float randVal = (float)rand()/RAND_MAX;
+        int sign = randVal>0.5?1:-1;
+        randVal = (float)rand()/RAND_MAX;
+        randVal*=jitterMax;
+        return (randVal*sign);}};
+
+
+template<typename T>
 struct UFRand{
     unsigned int operator()(unsigned int val){
         float randVal = (float)rand()/RAND_MAX;
