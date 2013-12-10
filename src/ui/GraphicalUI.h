@@ -58,8 +58,8 @@ public:
     Fl_Float_Input*     m_depthNumerator;
     Fl_Float_Input*     m_angleNumerator;
     Fl_Slider*			m_bumpScaleSlider;
-    Fl_Button*			m_renderEdgesButton;
     Fl_Check_Button*    m_nonRealismButton;
+    Fl_Check_Button*    m_edgeRedraw;
 
 	TraceGLWindow*		m_traceGlWindow;
 
@@ -96,7 +96,7 @@ private:
     static void cb_adaptiveSamplingCheckButton(Fl_Widget* o, void* v);
 
     static void cb_bumpScaleSlides(Fl_Widget* o, void* v);
-    static void cb_renderEdges(Fl_Widget* o, void* v);
+    static void cb_edgeRedrawCheckButton(Fl_Widget *o, void *v);
     static void cb_nonRealismCheckButton(Fl_Widget* o, void* v);
 
 	static bool doneTrace;		// Flag that gets set when the trace is done

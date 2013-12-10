@@ -321,7 +321,7 @@ void RayTracer::tracePixel( int i, int j )
     ++_descriptorIterator;}
 
 void RayTracer::drawEdges(){
-    if(true){
+    if(traceUI->nonRealism()){
         int kernalWidth = 3;
         int kernalHeight = 3;
         double distThresh = 0.01;

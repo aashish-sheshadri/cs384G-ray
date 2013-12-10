@@ -151,6 +151,12 @@ void GraphicalUI::cb_nonRealismCheckButton(Fl_Widget *o, void *v)
     pUI->m_bNonRealism = (((Fl_Check_Button*)o)->value() == 1);
 }
 
+void GraphicalUI::cb_edgeRedrawCheckButton(Fl_Widget *o, void *v)
+{
+    GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
+    pUI->m_bEdgeRedraw = (((Fl_Check_Button*)o)->value() == 1);
+}
+
 void GraphicalUI::cb_heuristicCheckButton(Fl_Widget* o, void* v)
 {
     GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
@@ -167,14 +173,6 @@ void GraphicalUI::cb_accelerateCheckButton(Fl_Widget* o, void* v)
 {
     GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
     pUI->m_accelerate = (((Fl_Check_Button*)o)->value() == 1);
-}
-
-void GraphicalUI::cb_renderEdges(Fl_Widget* o, void* v)
-{
-    GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
-    pUI->m_fAngleThreshold = atof(pUI->m_angleNumerator->value()) / atof(pUI->m_angleDenominator->value());
-    pUI->m_fDepthThreshold = atof(pUI->m_depthNumerator->value()) / atof(pUI->m_depthDenominator->value());
-
 }
 
 void GraphicalUI::cb_render(Fl_Widget* o, void* v)
@@ -406,33 +404,40 @@ GraphicalUI::GraphicalUI() {
         m_adaptiveSamplingButton->callback(cb_adaptiveSamplingCheckButton);
         m_adaptiveSamplingButton->set();
 
-        // set up debugging display checkbox
+        // set up non realism checkbox
         m_bNonRealism = false;
         m_nonRealismButton = new Fl_Check_Button(0, 290, 180, 20, "Non Realism");
         m_nonRealismButton->user_data((void*)(this));
         m_nonRealismButton->callback(cb_nonRealismCheckButton);
         m_nonRealismButton->value(m_bNonRealism);
 
+        // set up edge redraw checkbox
+        m_bEdgeRedraw = false;
+        m_edgeRedraw = new Fl_Check_Button(0, 320, 180, 20, "Edge Redraw");
+        m_edgeRedraw->user_data((void*)(this));
+        m_edgeRedraw->callback(cb_edgeRedrawCheckButton);
+        m_edgeRedraw->value(m_bEdgeRedraw);
+
         // set up depth threshold
-        m_depthNumerator = new Fl_Float_Input(125, 310, 30, 20, "&Depth Threshold");
+        m_depthNumerator = new Fl_Float_Input(125, 350, 30, 20, "&Depth Threshold");
         m_depthNumerator->user_data((void*)(this));
         m_depthNumerator->value("1.0");
-        m_depthDenominator = new Fl_Float_Input(165, 310, 30, 20, "/");
+        m_depthDenominator = new Fl_Float_Input(165, 350, 30, 20, "/");
         m_depthDenominator->user_data((void*)(this));
         m_depthDenominator->value("1.0");
 
         // set up edge angle threshold
-        m_angleNumerator = new Fl_Float_Input(125, 330, 30, 20, "&Angle Threshold");
+        m_angleNumerator = new Fl_Float_Input(125, 380, 30, 20, "&Angle Threshold");
         m_angleNumerator->user_data((void*)(this));
         m_angleNumerator->value("1.0");
-        m_angleDenominator = new Fl_Float_Input(165, 330, 30, 20, "/");
+        m_angleDenominator = new Fl_Float_Input(165, 380, 30, 20, "/");
         m_angleDenominator->user_data((void*)(this));
         m_angleDenominator->value("1.0");
 
 
         // install sample size slider
         m_fBumpScale = 1;
-        m_bumpScaleSlider = new Fl_Value_Slider(10, 350, 180, 20, "Bump Scale");
+        m_bumpScaleSlider = new Fl_Value_Slider(10, 410, 180, 20, "Bump Scale");
         m_bumpScaleSlider->user_data((void*)(this));	// record self to be used by static callback functions
         m_bumpScaleSlider->type(FL_HOR_NICE_SLIDER);
         m_bumpScaleSlider->labelfont(FL_COURIER);
@@ -453,15 +458,10 @@ GraphicalUI::GraphicalUI() {
 		// set up "render" button
         m_renderButton = new Fl_Button(240, 27, 100, 25, "&Render All");
 		m_renderButton->user_data((void*)(this));
-		m_renderButton->callback(cb_render);
-
-        // set up "render edges" button
-        m_renderEdgesButton = new Fl_Button(240, 57, 100, 25, "&Egde Render");
-        m_renderEdgesButton->user_data((void*)(this));
-        m_renderEdgesButton->callback(cb_renderEdges);
+        m_renderButton->callback(cb_render);
 
         // set up "stop" button
-        m_stopButton = new Fl_Button(240, 100, 70, 25, "&Stop");
+        m_stopButton = new Fl_Button(240, 100, 57, 25, "&Stop");
         m_stopButton->user_data((void*)(this));
         m_stopButton->callback(cb_stop);
 
