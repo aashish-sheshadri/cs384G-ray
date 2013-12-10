@@ -3,7 +3,6 @@
 #endif
 
 #include "RayTracer.h"
-#include "ui/CommandLineUI.h"
 #include "fileio/bitmap.h"
 
 using namespace std;
@@ -20,11 +19,11 @@ TraceUI* traceUI;
 int main(int argc, char **argv) {
 	if (argc!=1) {
 		// text mode
-		traceUI = new CommandLineUI( argc, argv );
+//		traceUI = new CommandLineUI( argc, argv );
 	} else {
 #ifdef COMMAND_LINE_ONLY
 		// still text mode
-		traceUI = new CommandLineUI( argc, argv );
+		//traceUI = new CommandLineUI( argc, argv );
 #else
 		// graphics mode
 		traceUI=new GraphicalUI();

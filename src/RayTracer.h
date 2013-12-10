@@ -135,11 +135,16 @@ private:
     void updateReflectionParams(const ray&, const isect&, Vec3d&, Vec3d&, Vec3d&);
     bool updateRefractionParams(const ray&, const isect&, const Material&, const Vec3d&, Vec3d&, Vec3d&, Vec3d&);
 	unsigned char *buffer;
+    unsigned char *cachedBuffer;
 	int buffer_width, buffer_height;
 	int bufferSize;
 	Scene* scene;
     bool checkTotalInternal(const ray& r,const isect& i);
     bool m_bBufferReady;
+    bool updateCache;
+    double distThresh;
+    double viewAngleThresh;
+    double surfaceAngleThresh;
     KdTree<Geometry> kdTree;};
 
 #endif // __RAYTRACER_H__
