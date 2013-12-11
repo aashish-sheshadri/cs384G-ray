@@ -229,12 +229,43 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
 		stopTrace = false;
 
 		for (int y=0; y<height; y++) {
-            boost::thread_group tgroup;
+//            boost::thread_group tgroup;
 			for (int x=0; x<width; x++) {
-                tgroup.create_thread(boost::bind(&RayTracer::tracePixel,pUI->raytracer,x,y));
-//				pUI->raytracer->tracePixel( x, y );
+                if (stopTrace) break;
+
+//				 current time
+                now = clock();
+
+//				 check event every 1/2 second
+                if (((double)(now-prev)/CLOCKS_PER_SEC)>0.5) {
+                    prev=now;
+
+                    // refresh
+                    pUI->m_traceGlWindow->refresh();
+                    Fl::check();
+
+                    if (Fl::damage()) {
+                        Fl::flush();
+                    }
+                }
+//                tgroup.create_thread(boost::bind(&RayTracer::tracePixel,pUI->raytracer,x,y));
+                pUI->raytracer->tracePixel( x, y );
+                pUI->m_debuggingWindow->m_debuggingView->setDirty();
             }
-            tgroup.join_all();
+//            tgroup.join_all();
+            if (stopTrace) break;
+
+            // refresh at end of row
+            pUI->m_traceGlWindow->refresh();
+            Fl::check();
+
+            if (Fl::damage()) {
+                Fl::flush();
+            }
+
+            // update the window label
+            sprintf(buffer, "(%d%%) %s", (int)((double)y / (double)height * 100.0), old_label);
+            pUI->m_traceGlWindow->label(buffer);
         }
 
         pUI->m_traceGlWindow->refresh();
