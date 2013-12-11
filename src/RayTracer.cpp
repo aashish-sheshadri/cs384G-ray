@@ -96,11 +96,9 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
     bool intersectionFound = false;
     isect i;
     if (traceUI->acceleration()){
-//        intersectionFound = kdTree.rayTreeTraversal(i, r);
-        intersectionFound = false;
+        intersectionFound = kdTree.rayTreeTraversal(i, r);
     } else{
-//        intersectionFound = scene->intersect( r, i );
-        intersectionFound = false;
+        intersectionFound = scene->intersect( r, i );
     }
 
     if( intersectionFound ) {
