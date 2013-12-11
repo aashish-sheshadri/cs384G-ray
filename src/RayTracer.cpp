@@ -32,36 +32,50 @@ bool debugMode = false;
 // in an initial ray weight of (0.0,0.0,0.0) and an initial recursion depth of 0.
 Vec3d RayTracer::trace( double x, double y )
 {
-    double newPlaneT = 15;
-    double aperture = 20;
-    double scale = std::max(1.0f/(double)buffer_width,1.0f/(double)buffer_height);
-    int numSamples = 20;
-
-    // Clear out the ray cache in the scene for debugging purposes,
-	scene->intersectCache.clear();
-
-    ray r( Vec3d(0,0,0), Vec3d(0,0,0), ray::VISIBILITY );
-
-    scene->getCamera().rayThrough( x,y,r );
-    Vec3d pointOnPlane = r.at(newPlaneT);
-    Vec3d cameraPos = scene->getCamera().getEye();
-//    Vec3d cameraLook = scene->getCamera().getLook();
-    Vec3d cameraU = scene->getCamera().getU();
-    Vec3d cameraV = scene->getCamera().getV();
-
-    JitterVal<double> jitter(aperture * scale);
     Vec3d ret(0.0f,0.0f,0.0f);
-    for(int i=0;i<numSamples;++i){
-        double x = jitter();
-        double y = jitter();
-        Vec3d newPoint = cameraPos + cameraU * x + cameraV * y;
-        Vec3d newDir = pointOnPlane - newPoint;
-        newDir.normalize();
-        r = ray( newPoint, newDir, ray::VISIBILITY );
-        Vec3d tempRet = traceRay( r, Vec3d(1.0,1.0,1.0), traceUI->getDepth() );
-        ret = ret + tempRet;}
+    if(traceUI->depthOfField()){
+        double newPlaneT = traceUI->getDistanceOfFocusPlane();//5;
+        double aperture = traceUI->getLensDiameter();//2;
+        double scale = std::max(1.0f/(double)buffer_width,1.0f/(double)buffer_height);
+        int numSamples = traceUI->getSampleSizeDOF();//20;
 
-    ret = ret/(double)numSamples;
+
+        // Clear out the ray cache in the scene for debugging purposes,
+        scene->intersectCache.clear();
+
+        ray r( Vec3d(0,0,0), Vec3d(0,0,0), ray::VISIBILITY );
+
+        scene->getCamera().rayThrough( x,y,r );
+        Vec3d pointOnPlane = r.at(newPlaneT);
+        Vec3d cameraPos = scene->getCamera().getEye();
+        Vec3d cameraU = scene->getCamera().getU();
+        Vec3d cameraV = scene->getCamera().getV();
+
+        JitterVal<double> jitter;
+        std::vector<double> jitterX(numSamples,aperture * scale);
+        std::vector<double> jitterY(numSamples,aperture * scale);
+        std::transform(jitterX.begin(),jitterX.end(),jitterX.begin(),jitter);
+        std::transform(jitterY.begin(),jitterY.end(),jitterY.begin(),jitter);
+        std::vector<double>::iterator jitXIt = jitterX.begin();
+        std::vector<double>::iterator jitYIt = jitterY.begin();
+        for(int i=0;i<numSamples;++i){
+            Vec3d newPoint = cameraPos + cameraU * *jitXIt + cameraV * *jitYIt;
+            Vec3d newDir = pointOnPlane - newPoint;
+            newDir.normalize();
+            r = ray( newPoint, newDir, ray::VISIBILITY );
+            Vec3d tempRet = traceRay( r, Vec3d(1.0,1.0,1.0), traceUI->getDepth() );
+            ret = ret + tempRet;
+            ++jitXIt;
+            ++jitYIt;}
+
+        ret = ret/(double)numSamples;
+    } else {
+        // Clear out the ray cache in the scene for debugging purposes,
+        scene->intersectCache.clear();
+        ray r( Vec3d(0,0,0), Vec3d(0,0,0), ray::VISIBILITY );
+        scene->getCamera().rayThrough( x,y,r );
+        ret = traceRay( r, Vec3d(1.0,1.0,1.0), traceUI->getDepth() );
+    }
 	ret.clamp();
 	return ret;
 }

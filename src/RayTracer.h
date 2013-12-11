@@ -25,14 +25,11 @@ struct Jitter{
 
 template<typename T>
 struct JitterVal{
-    T jitterMax;
-    JitterVal(T jitterMax){
-        this->jitterMax = jitterMax;}
-    T operator ()(){
+    T operator ()(T maxVal){
         float randVal = (float)rand()/RAND_MAX;
         int sign = randVal>0.5?1:-1;
         randVal = (float)rand()/RAND_MAX;
-        randVal*=jitterMax;
+        randVal*=maxVal;
         return (randVal*sign);}};
 
 
