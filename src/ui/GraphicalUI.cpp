@@ -228,7 +228,7 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
 		doneTrace = false;
 		stopTrace = false;
 
-		for (int y=0; y<height; y++) {
+        for (int y=0; y<height; y++) {
             boost::thread_group tgroup;
 			for (int x=0; x<width; x++) {
 //				if (stopTrace) break;
@@ -267,6 +267,9 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
 //			pUI->m_traceGlWindow->label(buffer);
             tgroup.join_all();
         }
+
+        for (float time = 100.0; time > 0; )
+            time = Fl::wait(time);
 
         pUI->m_traceGlWindow->refresh();
         Fl::check();
