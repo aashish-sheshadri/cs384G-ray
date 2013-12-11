@@ -103,9 +103,10 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
 
     if( intersectionFound ) {
         Vec3d pointOnObject = r.at(i.t);
-        if(r.type() == ray::VISIBILITY){
-            double viewAngle = (-1*r.getDirection())*i.N;
-            (*_descriptorIterator).push_back(Descriptor(pointOnObject,viewAngle));}
+        if(traceUI->nonRealism()&&traceUI->edgeRedraw()){
+            if(r.type() == ray::VISIBILITY){
+                double viewAngle = (-1*r.getDirection())*i.N;
+                (*_descriptorIterator).push_back(Descriptor(pointOnObject,viewAngle));}}
 
         const Material& m = i.getMaterial();
         Vec3d intensity = m.shade(scene, r, i);
@@ -139,8 +140,9 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
 		// is just black.
-        if(r.type() == ray::VISIBILITY){
-            (*_descriptorIterator).push_back(Descriptor(Vec3d(0.0f,0.0f,0.0f),2.0f));}
+        if(traceUI->nonRealism()&&traceUI->edgeRedraw()){
+            if(r.type() == ray::VISIBILITY){
+                (*_descriptorIterator).push_back(Descriptor(Vec3d(0.0f,0.0f,0.0f),2.0f));}}
         return Vec3d( 0.5f, 0.5f, 0.5f );
 	}
 }
@@ -272,15 +274,16 @@ void RayTracer::traceSetup( int w, int h )
 		bufferSize = buffer_width * buffer_height * 3;
 		delete [] buffer;
 		buffer = new unsigned char[ bufferSize ];
-        if(cachedBuffer!=0)
-            delete [] cachedBuffer;
-        cachedBuffer = new unsigned char[ bufferSize ];
+        if(traceUI->nonRealism()&&traceUI->edgeRedraw()){
+            if(cachedBuffer!=0)
+                delete [] cachedBuffer;
+            cachedBuffer = new unsigned char[ bufferSize ];}
 
 	}
 	memset( buffer, 0, w*h*3 );
     _descriptors.clear();
 
-    if(true){
+    if(traceUI->nonRealism()&&traceUI->edgeRedraw()){
         std::vector< std::vector<Descriptor> > temp(w*h);
         _descriptors = temp;
         _descriptorIterator = _descriptors.begin();}
@@ -302,7 +305,8 @@ void RayTracer::tracePixel( int i, int j )
 	double y = double(j)/double(buffer_height);
     int numSamples = traceUI->getSampleSize();
     numSamples = (numSamples%2)==0?numSamples+1:numSamples;
-    (*_descriptorIterator).reserve(numSamples*numSamples);
+    if(traceUI->edgeRedraw()&&traceUI->nonRealism())
+        (*_descriptorIterator).reserve(numSamples*numSamples);
     if(numSamples>1){
         double xMin = i - 0.5f;
         double yMin = j - 0.5f;
@@ -369,7 +373,8 @@ void RayTracer::tracePixel( int i, int j )
 	pixel[0] = (int)( 255.0 * col[0]);
 	pixel[1] = (int)( 255.0 * col[1]);
     pixel[2] = (int)( 255.0 * col[2]);
-    ++_descriptorIterator;}
+    if(traceUI->edgeRedraw()&&traceUI->nonRealism())
+        ++_descriptorIterator;}
 
 void RayTracer::drawEdges(){
     int kernalWidth = 3;
