@@ -46,10 +46,16 @@ Vec3d RayTracer::trace( double x, double y )
         ray r( Vec3d(0,0,0), Vec3d(0,0,0), ray::VISIBILITY );
 
         scene->getCamera().rayThrough( x,y,r );
-        Vec3d pointOnPlane = r.at(newPlaneT);
         Vec3d cameraPos = scene->getCamera().getEye();
         Vec3d cameraU = scene->getCamera().getU();
         Vec3d cameraV = scene->getCamera().getV();
+        Vec3d cameraLook = scene->getCamera().getLook();
+        cameraLook.normalize();
+        double planeDistance = -newPlaneT; //may have to invert
+        double normalProj = (cameraLook * r.getDirection()); //dot product
+        double intersectionWt = 0;
+        intersectionWt = - (cameraLook*r.getPosition() + planeDistance)/normalProj;
+        Vec3d pointOnPlane = r.at(intersectionWt);
 
         JitterVal<double> jitter;
         std::vector<double> jitterX(numSamples,aperture * scale);

@@ -227,6 +227,7 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
 
 		doneTrace = false;
 		stopTrace = false;
+        boost::thread_group tgroup;
 		for (int y=0; y<height; y++) {
 			for (int x=0; x<width; x++) {
 				if (stopTrace) break;
@@ -246,7 +247,8 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
 						Fl::flush();
 					}
                 }
-				pUI->raytracer->tracePixel( x, y );
+                tgroup.create_thread(boost::bind(&RayTracer::tracePixel,pUI->raytracer,x,y));
+//				pUI->raytracer->tracePixel( x, y );
 				pUI->m_debuggingWindow->m_debuggingView->setDirty();
             }
 			if (stopTrace) break;
@@ -261,9 +263,8 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
 
 			// update the window label
 			sprintf(buffer, "(%d%%) %s", (int)((double)y / (double)height * 100.0), old_label);
-			pUI->m_traceGlWindow->label(buffer);
-			
-		}
+			pUI->m_traceGlWindow->label(buffer);}
+        tgroup.join_all();
         if(!stopTrace){
             if(pUI->nonRealism()){
                 while(pUI->edgeRedraw()){
