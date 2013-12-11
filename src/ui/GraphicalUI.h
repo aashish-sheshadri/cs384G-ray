@@ -16,7 +16,6 @@
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Float_Input.H>
-#include <boost/thread.hpp>
 
 #include <FL/Fl_File_Chooser.H>		// FLTK file chooser
 
