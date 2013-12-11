@@ -169,12 +169,6 @@ void GraphicalUI::cb_nonRealismCheckButton(Fl_Widget *o, void *v)
     pUI->m_bNonRealism = (((Fl_Check_Button*)o)->value() == 1);
 }
 
-void GraphicalUI::cb_depthOfFieldCheckButton(Fl_Widget *o, void *v)
-{
-    GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
-    pUI->m_bDepthOfField = (((Fl_Check_Button*)o)->value() == 1);
-}
-
 void GraphicalUI::cb_edgeRedrawCheckButton(Fl_Widget *o, void *v)
 {
     GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
@@ -191,6 +185,12 @@ void GraphicalUI::cb_adaptiveSamplingCheckButton(Fl_Widget* o, void* v)
 {
     GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
     pUI->m_bAdaptiveSampling = (((Fl_Check_Button*)o)->value() == 1);
+}
+
+void GraphicalUI::cb_depthOfFieldCheckButton(Fl_Widget *o, void *v)
+{
+    GraphicalUI* pUI=(GraphicalUI*)(o->user_data());
+    pUI->m_bDepthOfField = (((Fl_Check_Button*)o)->value() == 1);
 }
 
 void GraphicalUI::cb_accelerateCheckButton(Fl_Widget* o, void* v)
@@ -494,8 +494,8 @@ GraphicalUI::GraphicalUI() {
         m_bDepthOfField = false;
         m_depthOfField = new Fl_Check_Button(0, y, 180, 20, "Depth of Field");
         m_depthOfField->user_data((void*)(this));
-        m_depthOfField->callback(cb_edgeRedrawCheckButton);
-        m_depthOfField->value(m_bEdgeRedraw);
+        m_depthOfField->callback(cb_depthOfFieldCheckButton);
+        m_depthOfField->value(m_bDepthOfField);
 
         // set up debugging display checkbox
         y +=30;
