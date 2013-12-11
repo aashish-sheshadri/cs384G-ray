@@ -274,7 +274,6 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
         if (Fl::damage()) {
             Fl::flush();
         }
-        pUI->raytracer->drawEdges();
         pUI->m_traceGlWindow->refresh();
         Fl::check();
 
