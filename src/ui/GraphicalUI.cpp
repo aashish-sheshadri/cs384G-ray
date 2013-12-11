@@ -227,64 +227,41 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
 
 		doneTrace = false;
 		stopTrace = false;
-
         for (int y=0; y<height; y++) {
-            boost::thread_group tgroup;
 			for (int x=0; x<width; x++) {
-//				if (stopTrace) break;
+                if (stopTrace) break;
 				
 				// current time
-//				now = clock();
+                now = clock();
 
 				// check event every 1/2 second
-//				if (((double)(now-prev)/CLOCKS_PER_SEC)>0.5) {
-//					prev=now;
+                if (((double)(now-prev)/CLOCKS_PER_SEC)>0.5) {
+                    prev=now;
 
 					// refresh
-//					pUI->m_traceGlWindow->refresh();
-//					Fl::check();
+                    pUI->m_traceGlWindow->refresh();
+                    Fl::check();
 
-//					if (Fl::damage()) {
-//						Fl::flush();
-//					}
-//                }
-                tgroup.create_thread(boost::bind(&RayTracer::tracePixel,pUI->raytracer,x,y));
-//				pUI->raytracer->tracePixel( x, y );
-//				pUI->m_debuggingWindow->m_debuggingView->setDirty();
+                    if (Fl::damage()) {
+                        Fl::flush();
+                    }
+                }
+                pUI->raytracer->tracePixel( x, y );
+                pUI->m_debuggingWindow->m_debuggingView->setDirty();
             }
-//			if (stopTrace) break;
+            if (stopTrace) break;
 
 			// refresh at end of row
-//			pUI->m_traceGlWindow->refresh();
-//			Fl::check();
+            pUI->m_traceGlWindow->refresh();
+            Fl::check();
 
-//			if (Fl::damage()) {
+            if (Fl::damage()) {
 				Fl::flush();
-//			}
+            }
 
 			// update the window label
-//			sprintf(buffer, "(%d%%) %s", (int)((double)y / (double)height * 100.0), old_label);
-//			pUI->m_traceGlWindow->label(buffer);
-            tgroup.join_all();
-        }
-
-        for (float time = 100.0; time > 0; )
-            time = Fl::wait(time);
-
-        pUI->m_traceGlWindow->refresh();
-        Fl::check();
-
-        if (Fl::damage()) {
-            Fl::flush();
-        }
-        pUI->raytracer->drawEdges();
-        pUI->m_traceGlWindow->refresh();
-        Fl::check();
-
-        if (Fl::damage()) {
-            Fl::flush();
-        }
-
+            sprintf(buffer, "(%d%%) %s", (int)((double)y / (double)height * 100.0), old_label);
+            pUI->m_traceGlWindow->label(buffer);}
         if(!stopTrace){
             if(pUI->nonRealism()){
                 while(pUI->edgeRedraw()){
