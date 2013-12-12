@@ -416,19 +416,19 @@ void RayTracer::drawEdges(){
                     break;}
                 if(thisNeighbourViewAngle > 1 && std::fabs(thisViewAngle) <= 1){
                     bEdge = true;
-                    strength+=10;}
+                    strength+=5;}
                 if(std::fabs(thisViewAngle - thisNeighbourViewAngle)>surfaceAngleThresh){
                     bEdge = true;
-                    strength+=2;}
+                    ++strength;}
                 if(std::fabs(thisViewAngle)< viewAngleThresh && std::fabs(thisViewAngle)>std::fabs(thisNeighbourViewAngle)){
                     bEdge = true;
-                    strength+=2;}
+                    strength+=5;}
             }
             if(bEdge){
                 unsigned char *pixel = buffer + ( x + y * buffer_width ) * 3;
-                pixel[0] = (int)(100/strength);
-                pixel[1] = (int)(100/strength);
-                pixel[2] = (int)(100/strength);
+                pixel[0] = (int)(50/strength);
+                pixel[1] = (int)(50/strength);
+                pixel[2] = (int)(50/strength);
             }
         }
     }
