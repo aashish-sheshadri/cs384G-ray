@@ -103,10 +103,9 @@ Vec3d RayTracer::traceRay( const ray& r, const Vec3d& thresh, int depth )
 
     if( intersectionFound ) {
         Vec3d pointOnObject = r.at(i.t);
-        if(traceUI->nonRealism()&&traceUI->edgeRedraw()){
             if(r.type() == ray::VISIBILITY){
                 double viewAngle = (-1*r.getDirection())*i.N;
-                (*_descriptorIterator).push_back(Descriptor(pointOnObject,viewAngle));}}
+                (*_descriptorIterator).push_back(Descriptor(pointOnObject,viewAngle));}
 
         const Material& m = i.getMaterial();
         Vec3d intensity = m.shade(scene, r, i);
@@ -274,19 +273,18 @@ void RayTracer::traceSetup( int w, int h )
 		bufferSize = buffer_width * buffer_height * 3;
 		delete [] buffer;
 		buffer = new unsigned char[ bufferSize ];
-        if(traceUI->nonRealism()&&traceUI->edgeRedraw()){
-            if(cachedBuffer!=0)
-                delete [] cachedBuffer;
-            cachedBuffer = new unsigned char[ bufferSize ];}
+        if(cachedBuffer!=0)
+            delete [] cachedBuffer;
+        cachedBuffer = new unsigned char[ bufferSize ];
 
 	}
 	memset( buffer, 0, w*h*3 );
     _descriptors.clear();
 
-    if(traceUI->nonRealism()&&traceUI->edgeRedraw()){
-        std::vector< std::vector<Descriptor> > temp(w*h);
-        _descriptors = temp;
-        _descriptorIterator = _descriptors.begin();}
+
+    std::vector< std::vector<Descriptor> > temp(w*h);
+    _descriptors = temp;
+    _descriptorIterator = _descriptors.begin();
 	m_bBufferReady = true;
     updateCache = true;
     distThresh = -1;//0.01;
@@ -373,8 +371,7 @@ void RayTracer::tracePixel( int i, int j )
 	pixel[0] = (int)( 255.0 * col[0]);
 	pixel[1] = (int)( 255.0 * col[1]);
     pixel[2] = (int)( 255.0 * col[2]);
-    if(traceUI->edgeRedraw()&&traceUI->nonRealism())
-        ++_descriptorIterator;}
+    ++_descriptorIterator;}
 
 void RayTracer::drawEdges(){
     int kernalWidth = 3;

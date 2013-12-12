@@ -282,7 +282,6 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
         }
 
         if(!stopTrace){
-            if(pUI->nonRealism()){
                 while(pUI->edgeRedraw()){
                     pUI->m_traceGlWindow->refresh();
                     Fl::check();
@@ -299,7 +298,7 @@ void GraphicalUI::cb_render(Fl_Widget* o, void* v)
                     }
                     pUI->m_traceGlWindow->label(buffer);
                     for (float time = 5.0; time > 0; )
-                        time = Fl::wait(time);}}}
+                        time = Fl::wait(time);}}
 
 		doneTrace=true;
 		stopTrace=false;
