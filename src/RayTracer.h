@@ -96,7 +96,11 @@ void loadNeighbours(int currY, int currX, int knlWidth, int knlHeight, int srcBu
 template <typename RI>
 void loadAvgVals(RI begin, RI end, Vec3d& point, double& viewAngle){
     int numSamples = 0;
+    int threshSamples = 5;
     while(begin!=end){
+        if(threshSamples<0)
+            break;
+        --threshSamples;
         Vec3d thisPoint = (*begin)._point;
         double thisAngle = (*begin)._viewAngle;
         point += thisPoint;
