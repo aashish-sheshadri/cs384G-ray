@@ -20,7 +20,7 @@ div {
 <body>
 	<div id="main">
 		<div id="content">
-			<h1>The mix of real and unreal. The composition of photo
+			<h1>Mixing the real and unreal. The composition of photo
 				realistic and non-photo realistic effects.</h1>
 			<a href="gallery.html">Gallery</a>
 			<p>Creating beautiful images efficiently is the goal of computer
@@ -110,7 +110,7 @@ div {
 				Depth of field (DoF) is one of them. DoF is an effect seen in
 				physical cameras caused by some lens's properties. Due to the
 				curvature of the lens, there exist a focus plane such that all the
-				rays converge. This results in sharp renditions of objects that
+				rays converge[3]. This results in sharp renditions of objects that
 				intersect the plane. However, as objects distance themselves from
 				such plane, P, the clarity of the rendition diminishes. This is
 				because the rays are refracted in different directions and thus miss
@@ -131,7 +131,24 @@ div {
 			<hr>
 			<h1>Non-photo Realistic Effects</h1>
 			<h2>Illumination Model</h2>
-			<p></p>
+			<p>Literature mention that there are four distinguishing
+				characteristics when describing non-photo realism: the use of edges,
+				the use of warmness and coolness to complement the illusion of
+				depth, lack of shadowing, and anisotropic renditions of metal
+				objects [1]. Since edges are black, their presence limit the range
+				of colors the actual illumination model can use. If the illumination
+				model were touse dark, rich colors then the edges will eventually be
+				blurred. The use of edges is further explained in the next section.
+				In art theory, colors are associated with temperature: warm and
+				cool. Reds, oranges, and yellows are warm while blue, greens, and
+				purples are cool. Cool colors tend to reside to the background in
+				the presence of warm colors and vice versa [1]. Thus, the proposed
+				illumination model uses two different tones when rendering images.
+				Complement-based tones and normal shading (darkening) of a color.
+				However, to avoid over saturation of images only a fraction of the
+				diffused coloring is used in the final product. For similar reasons,
+				shadowing is non-existant. Finally, due to time constraints we were
+				not able to approach anisotropicity the challenge.</p>
 			<table>
 				<tr>
 					<td><img src="gallery/original.bmp" alt="original"></td>
@@ -139,7 +156,29 @@ div {
 				</tr>
 			</table>
 			<h2>Edge Drawing</h2>
-			<p></p>
+			<p>Edges provide viewers large amounts of visual data [2].
+				Information about silhouettes and discontinuities can easily be
+				rendered using free form shapes made by well selected lines [1]. In
+				order to generate edges we implemented three heuristics. The first
+				one is based on the idea that if an edge exists at pixel X then
+				there exists a pixel Y in its neighborhood such that the difference
+				between t_val(X) and t_val(Y) is above a threshold. This means that
+				the ray associated with Y had a larger trajectory before hitting the
+				first object, then it must have been a different object. Hence, X
+				should be painted black since it belongs to the silhouette of its
+				object. The second heuristic is based on a similar observation. If
+				we consider the opposite face of the edge in the previous
+				description, we can see that an edge also occurs when the angle
+				between two faces is considerably larger than that of its neighbors.
+				Thus, X should be painted black if there exist an edge in its
+				neighborhood such that the angle between them is above some
+				threshold. The final heuristic is based on another observation about
+				silhouettes. If we consider a spherical surface, then it can be
+				shown easily that there exist a circle that belongs to the surface
+				such that the normals of the points are perpendicular the camera
+				view. However, because discritized of the image plane, we relax this
+				heuristic to consider X to belong to an edge if the angle of the
+				surface and the camera direction is below a threshold.</p>
 			<table>
 				<tr>
 					<td><img src="gallery/dragon1.bmp" alt="light edges"></td>
@@ -149,18 +188,18 @@ div {
 			<hr>
 			<h2>References</h2>
 			<ul>
-				<li>Amy Gooch, Bruce Gooch, Peter Shirley, and Elaine
+				<li>[1] Amy Gooch, Bruce Gooch, Peter Shirley, and Elaine
 					Cohen. 1998. A non-photorealistic lighting model for automatic
 					technical illustration. In Proceedings of the 25th annual
 					conference on Computer graphics and interactive techniques
 					(SIGGRAPH '98). ACM, New York, NY, USA, 447-452.</li>
-				<li>Michael A. Kowalski, Lee Markosian, J. D. Northrup,
+				<li>[2] Michael A. Kowalski, Lee Markosian, J. D. Northrup,
 					Lubomir Bourdev, Ronen Barzel, Loring S. Holden, and John F.
 					Hughes. 1999. Art-based rendering of fur, grass, and trees. In
 					Proceedings of the 26th annual conference on Computer graphics and
 					interactive techniques (SIGGRAPH '99). ACM Press/Addison-Wesley
 					Publishing Co., New York, NY, USA, 433-438.</li>
-				<li>Robert L. Cook, Thomas Porter, and Loren Carpenter.
+				<li>[3] Robert L. Cook, Thomas Porter, and Loren Carpenter.
 					1984. Distributed ray tracing.SIGGRAPH Comput. Graph.18, 3 (January
 					1984), 137-145.</li>
 			</ul>
