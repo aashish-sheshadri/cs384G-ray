@@ -20,12 +20,13 @@ div {
 <body>
 	<div id="main">
 		<div id="content">
-			<h1>Overview</h1>
+			<h1>The mix of real and unreal. The composition of photo
+				realistic and non-photo realistic effects.</h1>
 			<a href="gallery.html">Gallery</a>
 			<p>Creating beautiful images efficiently is the goal of computer
 				graphics. Ray tracing is one of the techniques used due to its
-				highly parallelizable nature. It works by tracing the light rays
-				"captured" by the camera lense in a time-reversed simulation. While
+				highly parallelization nature. It works by tracing the light rays
+				"captured" by the camera lens in a time-reversed simulation. While
 				most users consider realistic images to be beautiful, we will
 				consider beautiful images differently. One of the characteristics of
 				art is the exploration of expression. For example, dipole paintings
@@ -62,6 +63,7 @@ div {
 				tracer, we implemented adaptive sampling as follows: we first sample
 				min(sample_size^2, 10) rays. Then, if the variance in color is below
 				a threshold, we stop sampling and return the current average.</p>
+			<hr>
 			<h1>Photo Realistic Effects</h1>
 			<h2>Texture Mapping & Bump Mapping</h2>
 			<p>In order to render realistic objects, one must be capable of
@@ -75,7 +77,7 @@ div {
 				surface. For more complex models, we use trimeshes and their
 				barycentric coordinates used to derive the UV coordinates.</p>
 			<p>Texture mapping provides a way to display intricate details,
-				however, the renditions have this wrapping appearence. This is
+				however, the renditions have this wrapping appearance. This is
 				because the lighting on the surface is unaffected by the object's
 				"texture". Hence, the illusion of realism is limited. We can build
 				upon this technique by incorporating an image that details how the
@@ -106,26 +108,62 @@ div {
 			<p>While the latter techniques give more realistic renditions,
 				there are effects that occur in real life that we are interested in.
 				Depth of field (DoF) is one of them. DoF is an effect seen in
-				physical cameras caused by some lense properties. Due to the
-				curvature of the lense, there exist a focus plane such that all the
+				physical cameras caused by some lens's properties. Due to the
+				curvature of the lens, there exist a focus plane such that all the
 				rays converge. This results in sharp renditions of objects that
 				intersect the plane. However, as objects distance themselves from
 				such plane, P, the clarity of the rendition diminishes. This is
 				because the rays are refracted in different directions and thus miss
 				the "target" object. This effect is stronger as the diameter of the
-				lense increases. In order to implement such effect, we are given a
+				lens increases. In order to implement such effect, we are given a
 				distance value. We use it along with the direction of the camera to
 				derive P. Then, for each pixel we derive Y, the point of
 				intersection of the camera view vector and P. Next, we sample points
 				in the plane of the camera and for each point X, we trace a ray in
 				the direction of XY. The returned values are then averaged and the
 				result is used as the color of the pixel.</p>
-				<table>
+			<table>
 				<tr>
 					<td><img src="gallery/hitchcock_a_200_100.bmp" alt="hitchcock"></td>
 					<td><img src="gallery/hitchcock_a_500_40.bmp" alt="hitchcock"></td>
 				</tr>
 			</table>
+			<hr>
+			<h1>Non-photo Realistic Effects</h1>
+			<h2>Illumination Model</h2>
+			<p></p>
+			<table>
+				<tr>
+					<td><img src="gallery/original.bmp" alt="original"></td>
+					<td><img src="gallery/dragon1.bmp" alt="cartoon rendition"></td>
+				</tr>
+			</table>
+			<h2>Edge Drawing</h2>
+			<p></p>
+			<table>
+				<tr>
+					<td><img src="gallery/dragon1.bmp" alt="light edges"></td>
+					<td><img src="gallery/dragon4.bmp" alt="hard edges"></td>
+				</tr>
+			</table>
+			<hr>
+			<h2>References</h2>
+			<ul>
+				<li>Amy Gooch, Bruce Gooch, Peter Shirley, and Elaine
+					Cohen. 1998. A non-photorealistic lighting model for automatic
+					technical illustration. In Proceedings of the 25th annual
+					conference on Computer graphics and interactive techniques
+					(SIGGRAPH '98). ACM, New York, NY, USA, 447-452.</li>
+				<li>Michael A. Kowalski, Lee Markosian, J. D. Northrup,
+					Lubomir Bourdev, Ronen Barzel, Loring S. Holden, and John F.
+					Hughes. 1999. Art-based rendering of fur, grass, and trees. In
+					Proceedings of the 26th annual conference on Computer graphics and
+					interactive techniques (SIGGRAPH '99). ACM Press/Addison-Wesley
+					Publishing Co., New York, NY, USA, 433-438.</li>
+				<li>Robert L. Cook, Thomas Porter, and Loren Carpenter.
+					1984. Distributed ray tracing.SIGGRAPH Comput. Graph.18, 3 (January
+					1984), 137-145.</li>
+			</ul>
 		</div>
 	</div>
 </body>
