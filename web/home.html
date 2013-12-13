@@ -22,28 +22,110 @@ div {
 		<div id="content">
 			<h1>Overview</h1>
 			<a href="gallery.html">Gallery</a>
-			<p>One of the characteristics of art is the exploration of
-				expression. For example, dipole painting is a technique based on the
-				juxtaposing of two conflicting ideas in order to create meaning.
-				Moreover, this technique usually yields interesting composition.
-				Inspired by this technique, we explore the use of photo realistic
-				and non-photo realistic effects in order to enhance ray tracing.</p>
+			<p>Creating beautiful images efficiently is the goal of computer
+				graphics. Ray tracing is one of the techniques used due to its
+				highly parallelizable nature. It works by tracing the light rays
+				"captured" by the camera lense in a time-reversed simulation. While
+				most users consider realistic images to be beautiful, we will
+				consider beautiful images differently. One of the characteristics of
+				art is the exploration of expression. For example, dipole paintings
+				are portraits where two conflicting objects are juxtaposed in a
+				single composition in order to create meaning. Moreover, this
+				technique often yields interesting results. Inspired by this
+				technique, we explore the use of two conflicting concepts: photo and
+				non-photo realism. We are interested in enhancing our current ray
+				tracing to allow the creation of dipoles.</p>
 			<p>List of Accomplishments:</p>
 			<ul>
-				<li>A non photo realistic illumination model</li>
-				<li>Edge rendering algorithm</li>
+				<li>Adaptive Sampling</li>
 				<li>Texture Mapping</li>
 				<li>Bump Mapping</li>
 				<li>Depth of Field</li>
-				<li>Adaptive Sampling</li>
+				<li>A non-photo realistic illumination model</li>
+				<li>Edge rendering algorithm</li>
 			</ul>
 			<hr>
+			<h1>Speed Enhancements</h1>
+			<h2>Adapting sampling</h2>
+			<p>One of the inherent limitations in computer graphics is the
+				discretized image plane. This limitation is the cause of jagged
+				edges in any image. One technique commonly used to minimize this
+				problem is sampling. In ray tracing, sampling can be accomplished by
+				tracing multiple rays which originate from the neighborhood of the
+				desired pixel location. The returned values are then averaged and
+				the result is used as the color of the pixel. However, there are
+				many circumstances when such expensive technique will not be
+				beneficial. For example, when rendering a plain surface, sampling
+				will only smooth the edges but the quality of the image will not
+				improve much due to the low variance of in color. Thus, we should
+				avoid the sampling overhead in similar situations. In our ray
+				tracer, we implemented adaptive sampling as follows: we first sample
+				min(sample_size^2, 10) rays. Then, if the variance in color is below
+				a threshold, we stop sampling and return the current average.</p>
 			<h1>Photo Realistic Effects</h1>
-			<h2>Texture Mapping</h2>
-			<p>In order for the audience to determine a rendered object to be real, one must be capable 
-			of accurately depicting the intricate characteristics of the object in great detail. The first step to 
-			achieve the goal is to seamlessly wrap images of such complex features to simple objects 
-			such as	cubes and spheres.</p>
+			<h2>Texture Mapping & Bump Mapping</h2>
+			<p>In order to render realistic objects, one must be capable of
+				accurately depicting the objects' intricate characteristics. The
+				first step to achieve this effect is to seamlessly wrap images of
+				such features to the representing polyhedrons or polymeshes. For
+				simple polyhedrons and spheres, we can use mathematical formulas to
+				map a point in the three dimensional surface to a point (U,V) in a
+				two dimensional plane. The UV coordinate is then used to access the
+				color in the texture image and returns it as the color of the
+				surface. For more complex models, we use trimeshes and their
+				barycentric coordinates used to derive the UV coordinates.</p>
+			<p>Texture mapping provides a way to display intricate details,
+				however, the renditions have this wrapping appearence. This is
+				because the lighting on the surface is unaffected by the object's
+				"texture". Hence, the illusion of realism is limited. We can build
+				upon this technique by incorporating an image that details how the
+				elevation changes. The goal is to change the directional lighting
+				based on the object's texture. When a ray hits the surface, we
+				approximate the gradient at the intersection point using the UV
+				coordinates as indecies for the bump map. We use the gradient to
+				perturb the normal of the surface and the new normal is then used in
+				the calculations of the illumination model.</p>
+			<table>
+				<tr>
+					<td><img src="gallery/Earth&Moon.bmp" alt="Earth and Moon"></td>
+					<td><table>
+							<tr>
+								<td><img src="texture_maps/textEarth2.png" height="250"
+									width="250"><img src="bump_maps/bumpEarth2.png"
+									height="250" width="250"></td>
+							</tr>
+							<tr>
+								<td><img src="texture_maps/textMoon.png" height="250"
+									width="250"><img src="bump_maps/bumpMoon.png"
+									height="250" width="250"></td>
+							</tr>
+						</table>
+				</tr>
+			</table>
+			<h2>Depth of Field</h2>
+			<p>While the latter techniques give more realistic renditions,
+				there are effects that occur in real life that we are interested in.
+				Depth of field (DoF) is one of them. DoF is an effect seen in
+				physical cameras caused by some lense properties. Due to the
+				curvature of the lense, there exist a focus plane such that all the
+				rays converge. This results in sharp renditions of objects that
+				intersect the plane. However, as objects distance themselves from
+				such plane, P, the clarity of the rendition diminishes. This is
+				because the rays are refracted in different directions and thus miss
+				the "target" object. This effect is stronger as the diameter of the
+				lense increases. In order to implement such effect, we are given a
+				distance value. We use it along with the direction of the camera to
+				derive P. Then, for each pixel we derive Y, the point of
+				intersection of the camera view vector and P. Next, we sample points
+				in the plane of the camera and for each point X, we trace a ray in
+				the direction of XY. The returned values are then averaged and the
+				result is used as the color of the pixel.</p>
+				<table>
+				<tr>
+					<td><img src="gallery/hitchcock_a_200_100.bmp" alt="hitchcock"></td>
+					<td><img src="gallery/hitchcock_a_500_40.bmp" alt="hitchcock"></td>
+				</tr>
+			</table>
 		</div>
 	</div>
 </body>
