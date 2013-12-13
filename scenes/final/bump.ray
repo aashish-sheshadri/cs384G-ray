@@ -1,0 +1,28 @@
+SBT-raytracer 1.0
+
+camera {
+	position = (4,4,4);
+	viewdir = (-1,-1,-1);
+	aspectratio = 1;
+	updir = (0,1,0);
+}
+
+
+
+
+point_light {
+	position = (10,1, 1 );
+	color = (1, 1, 1);
+	constant_attenuation_coeff= 0.25;
+	linear_attenuation_coeff = 0.003372407;
+	quadratic_attenuation_coeff = 0.000045492;	
+}
+rotate(0,1,0,2,
+sphere{ 
+	material = { 
+		bump_mapping = bump("bumpGrid.png");
+		diffuse = (0.5, 0.5, 0.5);
+//		specular = (0.9,0.4,0.0);
+//		shininess = 76.8;
+	};
+})
