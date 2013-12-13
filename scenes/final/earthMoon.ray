@@ -1,0 +1,36 @@
+SBT-raytracer 1.0
+
+camera {
+	position = (20,0,-10);
+	viewdir = (-1,0,0.5);
+	aspectratio = 1;
+	updir = (0,1,0);
+}
+
+
+point_light {
+	position = (10, 02, -10);
+	color = (1, 1, 1);
+	constant_attenuation_coeff= 0.25;
+	linear_attenuation_coeff = 0.003372407;
+	quadratic_attenuation_coeff = 0.000045492;	
+}
+translate(5,2,3,
+scale(2.7,2.7,2.7,
+rotate(0,1,0,-1,
+sphere{ 
+	material = { 
+		bump_mapping = bump("bumpMoon.png");
+		diffuse = map("textMoon.png");
+	};
+})))
+
+translate(-10,0,10,
+scale(10,10,10,
+rotate(0,1,0,-1,
+sphere{ 
+	material = { 
+		bump_mapping = bump("bumpEarth2.png");
+		diffuse = map("textEarth2.png");
+	};
+})))
