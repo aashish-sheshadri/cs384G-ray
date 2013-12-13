@@ -196,6 +196,7 @@ RayTracer::~RayTracer()
 	delete [] buffer;
     if(cachedBuffer!=0)
         delete [] cachedBuffer;
+    _file.close();
 }
 
 void RayTracer::getBuffer( unsigned char *&buf, int &w, int &h )
@@ -276,6 +277,7 @@ void RayTracer::traceSetup( int w, int h )
         if(cachedBuffer!=0)
             delete [] cachedBuffer;
         cachedBuffer = new unsigned char[ bufferSize ];
+        _file.close();
 
 	}
 	memset( buffer, 0, w*h*3 );
@@ -290,6 +292,7 @@ void RayTracer::traceSetup( int w, int h )
     distThresh = -1;//0.01;
     viewAngleThresh = -1;//0.15;
     surfaceAngleThresh = -1; //0.05
+    _file.open("raycount.txt");
 }
 
 void RayTracer::tracePixel( int i, int j )
@@ -359,6 +362,7 @@ void RayTracer::tracePixel( int i, int j )
                         break;}
                 --minSamples;}
             col = col/numUsedSamples;
+            _file<<numUsedSamples<<std::endl;
         } else {
             for(std::vector<double>::iterator itX = xVec.begin();itX!=xVec.end();++itX){
                 for(std::vector<double>::iterator itY = yVec.begin();itY!=yVec.end();++itY){

@@ -9,6 +9,7 @@
 #include <numeric>
 #include "kdtree.h"
 #include <iterator>
+#include <fstream>
 
 
 template<typename T>
@@ -159,6 +160,7 @@ private:
     double distThresh;
     double viewAngleThresh;
     double surfaceAngleThresh;
-    KdTree<Geometry> kdTree;};
+    KdTree<Geometry> kdTree;
+    std::ofstream _file;};
 
 #endif // __RAYTRACER_H__
