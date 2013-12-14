@@ -178,18 +178,18 @@ div {
 				highly likely that the object is another one. Therefore, X should be
 				painted black since it belongs to the silhouette of its object. The
 				second heuristic is based on a similar observation. If we consider
-				the opposite face of the edge described in the previous description, we can
-				see that an edge also occurs when the angle between two faces is
-				considerably larger than that of its neighbors. Thus, X should be
+				the opposite face of the edge described in the previous description,
+				we can see that an edge also occurs when the angle between two faces
+				is considerably larger than that of its neighbors. Thus, X should be
 				painted black if there exist an edge in its neighborhood such that
-				the angle between their normals is above some threshold. The final heuristic
-				is based on another observation about silhouettes. If we consider a
-				spherical surface, then it can be shown easily that there exist a
-				circle that belongs to the surface such that the normals of the
-				points are perpendicular the camera view. However, due to the
-				discretization of the image plane, we relax this heuristic to consider
-				X belonging to an edge if the angle of the surface and the camera
-				direction is below a threshold.</p>
+				the angle between their normals is above some threshold. The final
+				heuristic is based on another observation about silhouettes. If we
+				consider a spherical surface, then it can be shown easily that there
+				exist a circle that belongs to the surface such that the normals of
+				the points are perpendicular the camera view. However, due to the
+				discretization of the image plane, we relax this heuristic to
+				consider X belonging to an edge if the angle of the surface and the
+				camera direction is below a threshold.</p>
 			<table>
 				<tr>
 					<td><img src="gallery/09-dragon.bmp" alt="light edges"></td>
@@ -197,6 +197,36 @@ div {
 				</tr>
 			</table>
 			<hr>
+			<h1>The mix</h1>
+			<p>While it is difficult to create impressive images using the
+				realistic and non-realistic effects, most of the images we now
+				present have interesting compositions for the same reason.</p>
+			<table>
+				<tr>
+					<td><img src="gallery/25-dragon_balls.bmp"></td>
+					<td>A composition focused on photo realistic effects.</td>
+				</tr>
+				<tr>
+					<td><img src="gallery/16-chess.bmp"></td>
+					<td>A composition focused on non-photo realistic effects.</td>
+				</tr>
+				<tr>
+					<td><img src="gallery/06-hitchcock.bmp"></td>
+					<td>A composition focused on edges in realistic objects. This
+						illustration also exemplifies the problems of edges in realistic
+						renditions.</td>
+				</tr>
+				<tr>
+					<td><img src="gallery/13-dragon.bmp"></td>
+					<td>A composition focused on depth of field and the new
+						illumination model. A nice effect is created when the cool shadows
+						mix with the warm highlights in the out of focused areas.</td>
+				</tr>
+				<tr>
+					<td><img src="gallery/22-dragons_ball2.bmp"></td>
+					<td>A composition using all the techniques.</td>
+				</tr>
+			</table>
 			<h2>References</h2>
 			<ul>
 				<li>[1] Robert L. Cook, Thomas Porter, and Loren Carpenter.
