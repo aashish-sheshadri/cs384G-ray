@@ -24,18 +24,16 @@ div {
 				realistic and non-photo realistic effects.</h1>
 			<a href="gallery.html">Gallery</a>
 			<p>Creating beautiful images efficiently is the goal of computer
-				graphics. Ray tracing is one of the techniques used due to its
-				highly parallelization nature. It works by tracing the light rays
-				"captured" by the camera lens in a time-reversed simulation. While
-				most users consider realistic images to be beautiful, we will
-				consider beautiful images differently. One of the characteristics of
-				art is the exploration of expression. For example, dipole paintings
-				are portraits where two conflicting objects are juxtaposed in a
-				single composition in order to create meaning. Moreover, this
-				technique often yields interesting results. Inspired by this
-				technique, we explore the use of two conflicting concepts: photo and
-				non-photo realism. We are interested in enhancing our current ray
-				tracing to allow the creation of dipoles.</p>
+				graphics. While most users consider realistic images to be
+				beautiful, we will consider beautiful images differently. One of the
+				characteristics of art is the exploration of expression. For
+				example, dipole paintings are portraits were two conflicting objects
+				are juxtaposed in a composition in order to create meaning.
+				Moreover, this technique often yields interesting pieces of art.
+				Inspired by this technique, we explore the use of two conflicting
+				concepts: photo and non-photo realism. We are interested in
+				enhancing our current ray tracing to allow the creation of
+				dipoles-like images.</p>
 			<p>List of Accomplishments:</p>
 			<ul>
 				<li>Adaptive Sampling</li>
@@ -56,46 +54,48 @@ div {
 				desired pixel location. The returned values are then averaged and
 				the result is used as the color of the pixel. However, there are
 				many circumstances when such expensive technique will not be
-				beneficial. For example, when rendering a plain surface, sampling
+				beneficial. For example, when rendering a plain surface sampling
 				will only smooth the edges but the quality of the image will not
-				improve much due to the low variance of in color. Thus, we should
+				improve overall due to the low variance of in color. Thus, we should
 				avoid the sampling overhead in similar situations. In our ray
-				tracer, we implemented adaptive sampling as follows: we first sample
-				min(sample_size^2, 10) rays. Then, if the variance in color is below
-				a threshold, we stop sampling and return the current average.</p>
-				<table>
+				tracer, we first sample min(sample_size^2, 10) rays. Then, if the
+				variance in color is below a threshold, we stop sampling and return
+				the current average.</p>
+			<table>
 				<tr>
 					<td><img src="gallery/00-bald.bmp"></td>
-					<td><img src="heat_maps/00-bald.png" alt="heatmap" width=512 height=512></td>
+					<td><img src="heat_maps/00-bald.png" alt="heatmap" width=512
+						height=512></td>
 				</tr>
 			</table>
 			<hr>
 			<h1>Photo Realistic Effects</h1>
-			<h2>Texture Mapping & Bump Mapping</h2>
+			<h2>Texture & Bump Mapping</h2>
 			<p>In order to render realistic objects, one must be capable of
 				accurately depicting the objects' intricate characteristics. The
 				first step to achieve this effect is to seamlessly wrap images of
-				such features to the representing polyhedrons or polymeshes. For
-				simple polyhedrons and spheres, we can use mathematical formulas to
-				map a point in the three dimensional surface to a point (U,V) in a
-				two dimensional plane. The UV coordinate is then used to access the
-				color in the texture image and returns it as the color of the
-				surface. For more complex models, we use trimeshes and their
-				barycentric coordinates used to derive the UV coordinates.</p>
+				such features to the representing polyhedron. For simple polyhedrons
+				and spheres, we can use mathematical formulas to map a point in the
+				three dimensional surface to a point (U,V) in a two dimensional
+				plane. The UV coordinate is then used to access the color in the
+				texture image and returns it as the color of the surface. For more
+				complex models, we use trimeshes and the barycentric coordinates of
+				the intersection are used to derive the UV coordinates.</p>
 			<p>Texture mapping provides a way to display intricate details,
-				however, the renditions have this wrapping appearance. This is
-				because the lighting on the surface is unaffected by the object's
-				"texture". Hence, the illusion of realism is limited. We can build
-				upon this technique by incorporating an image that details how the
-				elevation changes. The goal is to change the directional lighting
-				based on the object's texture. When a ray hits the surface, we
-				approximate the gradient at the intersection point using the UV
-				coordinates as indecies for the bump map. We use the gradient to
-				perturb the normal of the surface and the new normal is then used in
-				the calculations of the illumination model.</p>
+				however, renditions have this wrapping appearance. This is because
+				the lighting on the surface is unaffected by the object's "texture"
+				resulting in limited realism. We can build upon the previous
+				technique by incorporating an image that details how the elevation
+				changes. The goal is to perturb the directional lighting based on
+				the change of the object's texture at the point of intersection.
+				When a ray hits the surface, we approximate the gradient at the
+				intersection point using the UV coordinates as indecies for the bump
+				map. We use the gradient to perturb the normal of the surface and
+				the new normal is then used in the calculations of the illumination
+				model.</p>
 			<table>
 				<tr>
-					<td><img src="gallery/earth_moon.bmp"></td>
+					<td><img src="gallery/02-earth_moon.bmp"></td>
 					<td><table>
 							<tr>
 								<td><img src="texture_maps/textEarth2.png" height="250"
@@ -114,20 +114,21 @@ div {
 			<p>While the latter techniques give more realistic renditions,
 				there are effects that occur in real life that we are interested in.
 				Depth of field (DoF) is one of them. DoF is an effect seen in
-				physical cameras caused by some lens's properties. Due to the
+				physical cameras caused by properties of the lens. Due to the
 				curvature of the lens, there exist a focus plane such that all the
-				rays converge[3]. This results in sharp renditions of objects that
-				intersect the plane. However, as objects distance themselves from
-				such plane, P, the clarity of the rendition diminishes. This is
-				because the rays are refracted in different directions and thus miss
-				the "target" object. This effect is stronger as the diameter of the
-				lens increases. In order to implement such effect, we are given a
-				distance value. We use it along with the direction of the camera to
-				derive P. Then, for each pixel we derive Y, the point of
-				intersection of the camera view vector and P. Next, we sample points
-				in the plane of the camera and for each point X, we trace a ray in
-				the direction of XY. The returned values are then averaged and the
-				result is used as the color of the pixel.</p>
+				rays that go through the lens converge[1]. This results in sharp
+				renditions of objects that are near the plane. However, as objects
+				distance themselves from such plane, P, the clarity of the rendition
+				diminishes. The effect is stronger as the diameter of the lens
+				increases. This phenomena occurs because the rays are refracted in
+				different directions and thus miss the "target" object. In order to
+				implement such effect, we are given a distance value. We use it
+				along with the direction of the camera to derive P. Then, for each
+				pixel, X, being drawn we derive Y, the point of intersection of the
+				camera through X vector and P. Next, we sample points in the plane
+				of the camera and for each point Z, we trace a ray in the direction
+				of ZY. The returned values are then averaged and the result is used
+				as the color of the pixel.</p>
 			<table>
 				<tr>
 					<td><img src="gallery/04-hitchcock.bmp"></td>
@@ -137,24 +138,27 @@ div {
 			<hr>
 			<h1>Non-photo Realistic Effects</h1>
 			<h2>Illumination Model</h2>
-			<p>Literature mention that there are four distinguishing
-				characteristics when describing non-photo realism: the use of edges,
-				the use of warmness and coolness to complement the illusion of
-				depth, lack of shadowing, and anisotropic renditions of metal
-				objects [1]. Since edges are black, their presence limit the range
-				of colors the actual illumination model can use. If the illumination
-				model were touse dark, rich colors then the edges will eventually be
-				blurred. The use of edges is further explained in the next section.
-				In art theory, colors are associated with temperature: warm and
-				cool. Reds, oranges, and yellows are warm while blue, greens, and
-				purples are cool. Cool colors tend to reside to the background in
-				the presence of warm colors and vice versa [1]. Thus, the proposed
-				illumination model uses two different tones when rendering images.
-				Complement-based tones and normal shading (darkening) of a color.
-				However, to avoid over saturation of images only a fraction of the
-				diffused coloring is used in the final product. For similar reasons,
-				shadowing is non-existant. Finally, due to time constraints we were
-				not able to approach anisotropicity the challenge.</p>
+			<p>In the literature of graphics, it is mention that there are
+				four distinguishing characteristics when describing non-photo
+				realism: the use of edges, the use of warmness and coolness to
+				complement the illusion of depth, lack of shadowing, and anisotropic
+				renditions of metal objects [2]. Since edges are black, their
+				presence limits the range of colors the illumination model can
+				render because dark colors can eventually blur them. The use of
+				edges is further explained in the next section. In art theory,
+				colors are associated with temperature: warm and cool. Red, orange,
+				and yellow are warm while blue, green, and purple are cool. Cool
+				colors tend to reside to the background in the presence of warm
+				colors and vice versa [2]. Thus, the proposed illumination model
+				uses two different color schemes to create the illusion of depth.
+				Complement-based (darkening by adding the complement) tones and
+				normal shading (darkening by adding black) tones. However, to avoid
+				over saturation of color in images only a fraction of the diffused
+				coloring is used in the final rendition. For the same reason of
+				limited shading in the illumination model, shadowing is non-existant
+				in non-photo realism. Finally, due to time constraints we were not
+				able to approach anisotropicity the challenge but we can attempt to
+				simulate such effects using appropriate textures.</p>
 			<table>
 				<tr>
 					<td><img src="gallery/07-dragon.bmp"></td>
@@ -162,29 +166,30 @@ div {
 				</tr>
 			</table>
 			<h2>Edge Drawing</h2>
-			<p>Edges provide viewers large amounts of visual data [2].
-				Information about silhouettes and discontinuities can easily be
-				rendered using free form shapes made by well selected lines [1]. In
+			<p>Edges provide viewers large amounts of visual data. Moreover,
+				information about silhouettes and discontinuities can easily be
+				rendered using free form shapes made by well selected lines [3]. In
 				order to generate edges we implemented three heuristics. The first
 				one is based on the idea that if an edge exists at pixel X then
 				there exists a pixel Y in its neighborhood such that the difference
-				between t_val(X) and t_val(Y) is above a threshold. This means that
-				the ray associated with Y had a larger trajectory before hitting the
-				first object, then it must have been a different object. Hence, X
-				should be painted black since it belongs to the silhouette of its
-				object. The second heuristic is based on a similar observation. If
-				we consider the opposite face of the edge in the previous
-				description, we can see that an edge also occurs when the angle
-				between two faces is considerably larger than that of its neighbors.
-				Thus, X should be painted black if there exist an edge in its
-				neighborhood such that the angle between them is above some
-				threshold. The final heuristic is based on another observation about
-				silhouettes. If we consider a spherical surface, then it can be
-				shown easily that there exist a circle that belongs to the surface
-				such that the normals of the points are perpendicular the camera
-				view. However, because discritized of the image plane, we relax this
-				heuristic to consider X to belong to an edge if the angle of the
-				surface and the camera direction is below a threshold.</p>
+				between the distance the ray of X traveled (t_val(X)) and t_val(Y)
+				is above a threshold. This means that the ray associated with Y had
+				a larger trajectory before hitting the an object and thus it is
+				highly likely that the object is another one. Therefore, X should be
+				painted black since it belongs to the silhouette of its object. The
+				second heuristic is based on a similar observation. If we consider
+				the opposite face of the edge described in the previous description, we can
+				see that an edge also occurs when the angle between two faces is
+				considerably larger than that of its neighbors. Thus, X should be
+				painted black if there exist an edge in its neighborhood such that
+				the angle between their normals is above some threshold. The final heuristic
+				is based on another observation about silhouettes. If we consider a
+				spherical surface, then it can be shown easily that there exist a
+				circle that belongs to the surface such that the normals of the
+				points are perpendicular the camera view. However, due to the
+				discretization of the image plane, we relax this heuristic to consider
+				X belonging to an edge if the angle of the surface and the camera
+				direction is below a threshold.</p>
 			<table>
 				<tr>
 					<td><img src="gallery/09-dragon.bmp" alt="light edges"></td>
@@ -194,20 +199,20 @@ div {
 			<hr>
 			<h2>References</h2>
 			<ul>
-				<li>[1] Amy Gooch, Bruce Gooch, Peter Shirley, and Elaine
+				<li>[1] Robert L. Cook, Thomas Porter, and Loren Carpenter.
+					1984. Distributed ray tracing.SIGGRAPH Comput. Graph.18, 3 (January
+					1984), 137-145.</li>
+				<li>[2] Amy Gooch, Bruce Gooch, Peter Shirley, and Elaine
 					Cohen. 1998. A non-photorealistic lighting model for automatic
 					technical illustration. In Proceedings of the 25th annual
 					conference on Computer graphics and interactive techniques
 					(SIGGRAPH '98). ACM, New York, NY, USA, 447-452.</li>
-				<li>[2] Michael A. Kowalski, Lee Markosian, J. D. Northrup,
+				<li>[3] Michael A. Kowalski, Lee Markosian, J. D. Northrup,
 					Lubomir Bourdev, Ronen Barzel, Loring S. Holden, and John F.
 					Hughes. 1999. Art-based rendering of fur, grass, and trees. In
 					Proceedings of the 26th annual conference on Computer graphics and
 					interactive techniques (SIGGRAPH '99). ACM Press/Addison-Wesley
 					Publishing Co., New York, NY, USA, 433-438.</li>
-				<li>[3] Robert L. Cook, Thomas Porter, and Loren Carpenter.
-					1984. Distributed ray tracing.SIGGRAPH Comput. Graph.18, 3 (January
-					1984), 137-145.</li>
 			</ul>
 		</div>
 	</div>
