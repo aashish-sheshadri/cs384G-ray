@@ -21,19 +21,19 @@ div {
 	<div id="main">
 		<div id="content">
 			<h1 align="center">Ray Tracing the Real and the Unreal</h1>
-			<h1 align="center">The Composition of Photo Realistic and Non-Photo Realistic Effects</h1>
+			<h1 align="center">The Composition of Photo Realistic and
+				Non-Photo Realistic Effects</h1>
 			<a href="gallery.html">Gallery</a>
 			<p>Rendering beautiful images efficiently is the goal of computer
 				graphics. While most users consider realistic images to be
 				beautiful, we will consider beautiful images differently. One of the
 				characteristics of art is the exploration of expression. For
-				example, dipole paintings are portraits where two conflicting objects
-				are juxtaposed in a composition to create meaning.
-				Moreover, this technique often yields interesting pieces of art.
-				Inspired by this technique, we explore the use of two conflicting
-				concepts: photo and non-photo realism. We are interested in
-				enhancing our current ray tracing to allow the creation of
-				dipoles-like images.</p>
+				example, dipole paintings are portraits where two conflicting
+				objects are juxtaposed in a composition to create meaning. Moreover,
+				this technique often yields interesting pieces of art. Inspired by
+				this technique, we explore the use of two conflicting concepts:
+				photo and non-photo realism. We are interested in enhancing our
+				current ray tracing to allow the creation of dipoles-like images.</p>
 			<p>List of Accomplishments:</p>
 			<ul>
 				<li>Adaptive Sampling</li>
@@ -114,23 +114,23 @@ div {
 			<p>While the latter techniques give more realistic renditions,
 				there are effects that occur in real life that we are interested in.
 				Depth of field (DoF) is one of them. DoF is an effect seen in
-				physical cameras which use a lens to focus rays, since a pin hole 
-				camera with an infinitesimally small aperture can only be realized 
-				within the graphics realm. Due to the
-				curvature of the lens, there exists a focus plane such that all the
-				rays that go through the lens converge[1]. This results in sharp
-				appearance of objects that are near the focus plane P. However, as an object
-				moves away from such plane, P, the clarity of the rendered object
-				diminishes. The effect is stronger as the diameter of the lens
-				increases. This phenomena occurs because the rays are refracted in
-				different directions and thus miss the "target" object. In order to
-				implement such an effect, we are given a distance value. We use it
-				along with the direction of the camera to locate P. Then, for each
-				pixel, X, being drawn we derive Y, the point of intersection of the
-				camera through X vector and P. Next, we sample points in the plane
-				of the camera within the circle of confusion. For each sampled point Z, 
-				we trace a ray in the direction of the vector Y - Z. The returned values 
-				are then averaged to represent the color of the pixel.</p>
+				physical cameras which use a lens to focus rays, since a pin hole
+				camera with an infinitesimally small aperture can only be realized
+				within the graphics realm. Due to the curvature of the lens, there
+				exists a focus plane such that all the rays that go through the lens
+				converge[1]. This results in sharp appearance of objects that are
+				near the focus plane P. However, as an object moves away from such
+				plane, P, the clarity of the rendered object diminishes. The effect
+				is stronger as the diameter of the lens increases. This phenomena
+				occurs because the rays are refracted in different directions and
+				thus miss the "target" object. In order to implement such an effect,
+				we are given a distance value. We use it along with the direction of
+				the camera to locate P. Then, for each pixel, X, being drawn we
+				derive Y, the point of intersection of the camera through X vector
+				and P. Next, we sample points in the plane of the camera within the
+				circle of confusion. For each sampled point Z, we trace a ray in the
+				direction of the vector Y - Z. The returned values are then averaged
+				to represent the color of the pixel.</p>
 			<table>
 				<tr>
 					<td><img src="gallery/04-hitchcock.bmp"></td>
@@ -168,11 +168,55 @@ div {
 				</tr>
 			</table>
 			<h2>Edge Drawing</h2>
-			<p>Edges provide viewers depth cues when viewing visual data. Information about silhouettes and discontinuities can easily be rendered using free form shapes made by well selected lines [3]. In order to generate edges we implemented three heuristics. If for a pixel X there exists a pixel Y in its neighborhood with a depth above a predetermined threshold, the discontinuity in the 3d world can be explained by the existence of an edge. The second heuristic is based on discontinuities in the variance of view angles which are measured with respect to the surface normals in the local neighborhood of a pixel, the likely existence of a high variance is the presence of an edge. The final heuristic is that of the view angle approaching 90 degrees indicating an edge as described by the view perspective. We paint pixels black to indicate edges by varying thresholds and weights of the three described heuristics.</p>
+			<p>Edges provide viewers depth cues when viewing visual data.
+				Information about silhouettes and discontinuities can easily be
+				rendered using free form shapes made by well selected lines [3]. In
+				order to generate edges we implemented three heuristics. If for a
+				pixel X there exists a pixel Y in its neighborhood with a depth
+				above a predetermined threshold, the discontinuity in the 3d world
+				can be explained by the existence of an edge. The second heuristic
+				is based on discontinuities in the variance of view angles which are
+				measured with respect to the surface normals in the local
+				neighborhood of a pixel, the likely existence of a high variance is
+				the presence of an edge. The final heuristic is that of the view
+				angle approaching 90 degrees indicating an edge as described by the
+				view perspective. We paint pixels black to indicate edges by varying
+				thresholds and weights of the three described heuristics.</p>
 			<table>
 				<tr>
 					<td><img src="gallery/09-dragon.bmp" alt="light edges"></td>
 					<td><img src="gallery/12-dragon.bmp" alt="hard edges"></td>
+				</tr>
+			</table>
+			<hr>
+			<h1>The mix</h1>
+			<p>While it is difficult to create impressive images using the
+				realistic and non-realistic effects, most of the images we now
+				present have interesting compositions for the same reason.</p>
+			<table>
+				<tr>
+					<td><img src="gallery/25-dragon_balls.bmp"></td>
+					<td>A composition focused on photo realistic effects.</td>
+				</tr>
+				<tr>
+					<td><img src="gallery/16-chess.bmp"></td>
+					<td>A composition focused on non-photo realistic effects.</td>
+				</tr>
+				<tr>
+					<td><img src="gallery/06-hitchcock.bmp"></td>
+					<td>A composition focused on edges in realistic objects. This
+						illustration also exemplifies the problems of edges in realistic
+						renditions.</td>
+				</tr>
+				<tr>
+					<td><img src="gallery/13-dragon.bmp"></td>
+					<td>A composition focused on depth of field and the new
+						illumination model. A nice effect is created when the cool shadows
+						mix with the warm highlights in the out of focused areas.</td>
+				</tr>
+				<tr>
+					<td><img src="gallery/22-dragons_ball2.bmp"></td>
+					<td>A composition using all the techniques.</td>
 				</tr>
 			</table>
 			<hr>
