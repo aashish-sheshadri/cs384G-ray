@@ -20,15 +20,15 @@ div {
 <body>
 	<div id="main">
 		<div id="content">
-			<h1>Mixing the real and unreal. The composition of photo
-				realistic and non-photo realistic effects.</h1>
+			<h1 align="center">Ray Tracing the Real and the Unreal</h1>
+			<h1 align="center">The Composition of Photo Realistic and Non-Photo Realistic Effects</h1>
 			<a href="gallery.html">Gallery</a>
-			<p>Creating beautiful images efficiently is the goal of computer
+			<p>Rendering beautiful images efficiently is the goal of computer
 				graphics. While most users consider realistic images to be
 				beautiful, we will consider beautiful images differently. One of the
 				characteristics of art is the exploration of expression. For
-				example, dipole paintings are portraits were two conflicting objects
-				are juxtaposed in a composition in order to create meaning.
+				example, dipole paintings are portraits where two conflicting objects
+				are juxtaposed in a composition to create meaning.
 				Moreover, this technique often yields interesting pieces of art.
 				Inspired by this technique, we explore the use of two conflicting
 				concepts: photo and non-photo realism. We are interested in
@@ -48,7 +48,7 @@ div {
 			<h2>Adapting sampling</h2>
 			<p>One of the inherent limitations in computer graphics is the
 				discretized image plane. This limitation is the cause of jagged
-				edges in any image. One technique commonly used to minimize this
+				edges in any image. One technique commonly used to alleviate this
 				problem is sampling. In ray tracing, sampling can be accomplished by
 				tracing multiple rays which originate from the neighborhood of the
 				desired pixel location. The returned values are then averaged and
@@ -114,21 +114,23 @@ div {
 			<p>While the latter techniques give more realistic renditions,
 				there are effects that occur in real life that we are interested in.
 				Depth of field (DoF) is one of them. DoF is an effect seen in
-				physical cameras caused by properties of the lens. Due to the
-				curvature of the lens, there exist a focus plane such that all the
+				physical cameras which use a lens to focus rays, since a pin hole 
+				camera with an infinitesimally small aperture can only be realized 
+				within the graphics realm. Due to the
+				curvature of the lens, there exists a focus plane such that all the
 				rays that go through the lens converge[1]. This results in sharp
-				renditions of objects that are near the plane. However, as objects
-				distance themselves from such plane, P, the clarity of the rendition
+				appearance of objects that are near the focus plane P. However, as an object
+				moves away from such plane, P, the clarity of the rendered object
 				diminishes. The effect is stronger as the diameter of the lens
 				increases. This phenomena occurs because the rays are refracted in
 				different directions and thus miss the "target" object. In order to
-				implement such effect, we are given a distance value. We use it
-				along with the direction of the camera to derive P. Then, for each
+				implement such an effect, we are given a distance value. We use it
+				along with the direction of the camera to locate P. Then, for each
 				pixel, X, being drawn we derive Y, the point of intersection of the
 				camera through X vector and P. Next, we sample points in the plane
-				of the camera and for each point Z, we trace a ray in the direction
-				of ZY. The returned values are then averaged and the result is used
-				as the color of the pixel.</p>
+				of the camera within the circle of confusion. For each sampled point Z, 
+				we trace a ray in the direction of the vector Y - Z. The returned values 
+				are then averaged to represent the color of the pixel.</p>
 			<table>
 				<tr>
 					<td><img src="gallery/04-hitchcock.bmp"></td>
@@ -138,8 +140,8 @@ div {
 			<hr>
 			<h1>Non-photo Realistic Effects</h1>
 			<h2>Illumination Model</h2>
-			<p>In the literature of graphics, it is mention that there are
-				four distinguishing characteristics when describing non-photo
+			<p>In the literature of graphics, it is mentioned that there are
+				four distinguishing characteristics which describe non-photo
 				realism: the use of edges, the use of warmness and coolness to
 				complement the illusion of depth, lack of shadowing, and anisotropic
 				renditions of metal objects [2]. Since edges are black, their
@@ -166,30 +168,7 @@ div {
 				</tr>
 			</table>
 			<h2>Edge Drawing</h2>
-			<p>Edges provide viewers large amounts of visual data. Moreover,
-				information about silhouettes and discontinuities can easily be
-				rendered using free form shapes made by well selected lines [3]. In
-				order to generate edges we implemented three heuristics. The first
-				one is based on the idea that if an edge exists at pixel X then
-				there exists a pixel Y in its neighborhood such that the difference
-				between the distance the ray of X traveled (t_val(X)) and t_val(Y)
-				is above a threshold. This means that the ray associated with Y had
-				a larger trajectory before hitting the an object and thus it is
-				highly likely that the object is another one. Therefore, X should be
-				painted black since it belongs to the silhouette of its object. The
-				second heuristic is based on a similar observation. If we consider
-				the opposite face of the edge described in the previous description, we can
-				see that an edge also occurs when the angle between two faces is
-				considerably larger than that of its neighbors. Thus, X should be
-				painted black if there exist an edge in its neighborhood such that
-				the angle between their normals is above some threshold. The final heuristic
-				is based on another observation about silhouettes. If we consider a
-				spherical surface, then it can be shown easily that there exist a
-				circle that belongs to the surface such that the normals of the
-				points are perpendicular the camera view. However, due to the
-				discretization of the image plane, we relax this heuristic to consider
-				X belonging to an edge if the angle of the surface and the camera
-				direction is below a threshold.</p>
+			<p>Edges provide viewers depth cues when viewing visual data. Information about silhouettes and discontinuities can easily be rendered using free form shapes made by well selected lines [3]. In order to generate edges we implemented three heuristics. If for a pixel X there exists a pixel Y in its neighborhood with a depth above a predetermined threshold, the discontinuity in the 3d world can be explained by the existence of an edge. The second heuristic is based on discontinuities in the variance of view angles which are measured with respect to the surface normals in the local neighborhood of a pixel, the likely existence of a high variance is the presence of an edge. The final heuristic is that of the view angle approaching 90 degrees indicating an edge as described by the view perspective. We paint pixels black to indicate edges by varying thresholds and weights of the three described heuristics.</p>
 			<table>
 				<tr>
 					<td><img src="gallery/09-dragon.bmp" alt="light edges"></td>

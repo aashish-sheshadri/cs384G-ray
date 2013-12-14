@@ -297,7 +297,7 @@ void RayTracer::traceSetup( int w, int h )
 
 void RayTracer::tracePixel( int i, int j )
 {
-    double varThresh = 0.0001f;
+    double varThresh = 0.005f;
     Vec3d col(0.0f,0.0f,0.0f);
 	if( ! sceneLoaded() )
 		return;
@@ -341,7 +341,7 @@ void RayTracer::tracePixel( int i, int j )
 
             fillRandomIdx(allSamples.begin(),allSamples.end());
 
-            int minSamples = 10;
+            int minSamples = 5;
             int numUsedSamples = 0;
             double runningSum = 0.0f;
             for(std::vector<std::pair<double,double> >::iterator it = allSamples.begin();it!=allSamples.end();++it){
